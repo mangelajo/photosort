@@ -30,7 +30,8 @@ class Config:
         return self._relative_or_absolute_to_output(self._data['db_file'])
 
     def duplicates_dir(self):
-        return self._relative_or_absolute_to_output(self._data['duplicates_dir'])
+        return self._relative_or_absolute_to_output(
+            self._data['duplicates_dir'])
 
     def sources(self):
         return self._data['sources']

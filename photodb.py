@@ -107,4 +107,5 @@ class PhotoDB:
                                  "handled as dupe: %s %s", filename, filename2)
             return True
 
-    def add_file(self,filename):
+    def add_file(self, filename):
+        pass
