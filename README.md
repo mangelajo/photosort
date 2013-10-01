@@ -36,7 +36,7 @@ In the future this could be an sqlite file.
 
 Configuration is stored in YAML format, this is an example file:
 
-'''
+```
 sources:
   dropbox:
     dir: '/Users/ajo/Dropbox/mobilephotos'
@@ -52,4 +52,4 @@ log_file: 'photosort.log'
 db_file: 'photosort.db'
 
 dir_pattern: "%(year)s/%(year)s_%(month)s_%(day)s"
-'''
+```
