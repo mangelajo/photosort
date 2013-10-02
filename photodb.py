@@ -12,6 +12,7 @@ import logging
 import filecmp
 
 import walk
+from media import MediaFile
 
 
 class PhotoDB:
@@ -41,8 +42,8 @@ class PhotoDB:
                     logging.info("DB was empty")
                     return
 
-                for file_dir, file_name, file_type, md5_hash in dbreader:
-                    self._hashes[md5_hash] = {'dir': file_dir,
+                for file_dir, file_name, file_type, hash in dbreader:
+                    self._hashes[hash] = {'dir': file_dir,
                                               'name': file_name,
                                               'type': file_type}
             logging.info("DB Load finished, %d entries" % len(self._hashes))
@@ -67,14 +68,14 @@ class PhotoDB:
             dbwriter = csv.writer(f_out, delimiter=',')
             dbwriter.writerow(['directory', 'filename', 'type', 'md5'])
 
-            for md5_hash in self._hashes.keys():
+            for hash in self._hashes.keys():
 
                 file_dir, file_name, file_type = (
-                    self._hashes[md5_hash]['dir'],
-                    self._hashes[md5_hash]['name'],
-                    self._hashes[md5_hash]['type'])
+                    self._hashes[hash]['dir'],
+                    self._hashes[hash]['name'],
+                    self._hashes[hash]['type'])
 
-                dbwriter.writerow([file_dir, file_name, file_type, md5_hash])
+                dbwriter.writerow([file_dir, file_name, file_type, hash])
 
     def rebuild(self):
         """
@@ -82,30 +83,34 @@ class PhotoDB:
         """
         walker = walk.WalkForMedia(self._output_dir, ignores=self._inputs)
 
-        for file_dir, file_name, file_type, md5_hash in walk.find_media():
+        for file_dir, file_name, file_type, hash in walker.find_media():
             # remove output dir path + '/'
             file_dir = file_dir[len(self._output_dir)+1:]
-            self._hashes[md5_hash] = {'dir': file_dir,
+            self._hashes[hash] = {'dir': file_dir,
                                       'name': file_name,
                                       'type': file_type}
             logging.info("indexed %s/%s %s %s" % (file_dir,
                                                   file_name,
                                                   file_type,
-                                                  md5_hash))
+                                                  hash))
 
         self.write()
 
-    def is_duplicate(self, filename):
+    def is_duplicate(self, photo):
 
-        md5_hash = walk.md5hashfile(filename)
+        media_file = MediaFile.build_for(filename)
+        hash = media_file.hash()
 
-        if md5_hash in self._hash:
-            filename_data = self._hash[md5_hash]
+        if hash in self._hash:
+
+            filename_data = self._hash[hash]
             filename2 = filename_data['dir']+'/'+filename_data['name']
-            if filecmp.cmp(filename, filename2, shallow=True):
+
+            if media_file.is_equal_to(filename2):
                 logging.critical("MD5 hash collision for two different files,"
                                  "handled as dupe: %s %s", filename, filename2)
             return True
+        return False
 
     def add_file(self, filename):
         pass

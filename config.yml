@@ -1,0 +1,17 @@
+
+
+sources:
+  dropbox:
+    dir: '/Users/ajo/Dropbox/mobilephotos'
+    delete: False
+  nasinbox:
+    dir: '/Volumes/casa/Fotos/inbox'
+    delete: True
+
+
+output_dir: '/Volumes/casa/Fotos'
+duplicates_dir: 'duplicates'
+log_file: 'photosort.log'
+db_file: 'photosort.db'
+
+dir_pattern: "%(year)d/%(year)d_%(month)d_%(day)d"

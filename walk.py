@@ -10,15 +10,12 @@ import exceptions
 
 import hashlib
 import os
+import logging
+
+from media import MediaFile
 
 
-def md5hashfile(self, filename, hasher=hashlib.md5(), blocksize=65536):
-    with open(filename, 'rb') as afile:
-        buf = afile.read(blocksize)
-        while len(buf) > 0:
-            hasher.update(buf)
-            buf = afile.read(blocksize)
-        return hasher
+
 
 
 class WalkForMedia:
@@ -29,15 +26,6 @@ class WalkForMedia:
         self._rootdir = rootdir
         self._ignores = ignores
         self._extensions = extensions
-
-        return hasher
-
-    def _guess_file_type(self, extension):
-        if extension in ('jpeg', 'jpg'):
-            return 'picture'
-        if extension in ('mpeg', 'mpg', 'mov'):
-            return 'movie'
-        return 'unknown'
 
     def find_media(self):
 
@@ -63,12 +51,10 @@ class WalkForMedia:
 
             for file in files:
 
-                extension = file.lower().split('.')[-1]
+                file_path = os.path.join(root, file)
+                media_file = MediaFile.build_for(file_path)
+                file_type = media_file.type()
 
-                file_type = self._guess_file_type(extension)
-
-                if file_type != 'unknown' or extension in self._extensions:
-
-                    file_path = os.path.join(root, file)
-                    md5_hash = md5hashfile(file_path).hexdigest()
-                    yield [root, file, file_type, md5_hash]
+                if file_type != 'unknown':
+                    logging.info("hashing: %s/%s" % (root, file))
+                    yield [root, file, file_type, media_file.hash()]

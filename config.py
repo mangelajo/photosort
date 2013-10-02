@@ -10,6 +10,9 @@ import yaml
 
 
 class Config:
+    """
+    YAML configuration reading class
+    """
     def __init__(self, filename='config.yml'):
         with open(filename, 'r') as f_in:
             self._data = yaml.safe_load(f_in)
@@ -18,6 +21,11 @@ class Config:
         return self._data['output_dir']
 
     def _relative_or_absolute_to_output(self, filename):
+        """
+            If filename starts with a slash it does return
+            the filename, otherwise it will add the output dir
+            in front
+        """
         if filename.startswith('/'):
             return filename
         else:
