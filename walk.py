@@ -8,14 +8,10 @@ __license__ = "GPLv3"
 
 import exceptions
 
-import hashlib
 import os
 import logging
 
 from media import MediaFile
-
-
-
 
 
 class WalkForMedia:
@@ -37,7 +33,7 @@ class WalkForMedia:
         for root, subFolders, files in os.walk(self._rootdir):
 
             # if last directory starts with "." ignore it (.thumbnails, etc...)
-            if root.split('/')[-1].startswith('.'):
+            if os.path.split(root)[-1].startswith('.'):
                 continue
 
             # check if we have directories to ignore
@@ -56,5 +52,5 @@ class WalkForMedia:
                 file_type = media_file.type()
 
                 if file_type != 'unknown':
-                    logging.info("hashing: %s/%s" % (root, file))
-                    yield [root, file, file_type, media_file.hash()]
+                    logging.debug("hashing: %s/%s" % (root, file))
+                    yield [root, file]

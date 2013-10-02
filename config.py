@@ -30,7 +30,8 @@ class Config:
             return filename
         else:
             return self.output_dir()+"/"+filename
-
+    def sources(self):
+        return self._data['sources']
     def log_file(self):
         return self._relative_or_absolute_to_output(self._data['log_file'])
 

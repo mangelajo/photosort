@@ -6,10 +6,10 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
-
 import csv
 import logging
 import filecmp
+import os.path
 
 import walk
 from media import MediaFile
@@ -20,6 +20,8 @@ class PhotoDB:
 
         self._db_file = config.db_file()
         self._output_dir = config.output_dir()
+        self._duplicates_dir = config.duplicates_dir()
+        self._dir_pattern = config.dir_pattern()
         self._inputs = (config.sources()[source]['dir']
                         for source in config.sources().keys())
         self._hashes = {}
@@ -47,9 +49,10 @@ class PhotoDB:
                                               'name': file_name,
                                               'type': file_type}
             logging.info("DB Load finished, %d entries" % len(self._hashes))
-        except IOError:
+        except IOError as e:
             logging.error("Error opening db file %s" % self._db_file)
-            raise
+            if e.errno!=2:
+                raise
 
     def write(self):
 
@@ -77,40 +80,86 @@ class PhotoDB:
 
                 dbwriter.writerow([file_dir, file_name, file_type, hash])
 
+    def _add_to_db(self, file_dir, file_name, media_file):
+        try:
+            hash = media_file.hash()
+        except IOError as e:
+            logging.error("IOError %s trying to hash %s" %
+                          (e,media_file.get_path()))
+            return False
+
+        file_type = media_file.type()
+
+        # remove output dir path + '/'
+        file_dir = file_dir[len(self._output_dir) + 1:]
+        self._hashes[hash] = {'dir': file_dir,
+                              'name': file_name,
+                              'type': file_type}
+
+        logging.info("indexed %s/%s %s %s" % (file_dir,
+                                              file_name,
+                                              file_type,
+                                              hash))
+        return True
+
+
     def rebuild(self):
         """
             rebuilds the database using the output directory
         """
         walker = walk.WalkForMedia(self._output_dir, ignores=self._inputs)
 
-        for file_dir, file_name, file_type, hash in walker.find_media():
-            # remove output dir path + '/'
-            file_dir = file_dir[len(self._output_dir)+1:]
-            self._hashes[hash] = {'dir': file_dir,
-                                      'name': file_name,
-                                      'type': file_type}
-            logging.info("indexed %s/%s %s %s" % (file_dir,
-                                                  file_name,
-                                                  file_type,
-                                                  hash))
+        for file_dir, file_name in walker.find_media():
 
+            try:
+                media_file = MediaFile.build_for(os.path.join(file_dir, file_name))
+                self._add_to_db(file_dir, file_name, media_file)
+            except:
+                logging.critical("Unexpected error: %s" % (sys.exc_info()[0]))
         self.write()
 
-    def is_duplicate(self, photo):
+    def is_duplicate(self, media_file):
 
-        media_file = MediaFile.build_for(filename)
         hash = media_file.hash()
 
-        if hash in self._hash:
+        if hash in self._hashes:
 
-            filename_data = self._hash[hash]
-            filename2 = filename_data['dir']+'/'+filename_data['name']
+            filename_data = self._hashes[hash]
+            filename2 = self._output_dir + "/" + filename_data['dir']+'/'+filename_data['name']
 
-            if media_file.is_equal_to(filename2):
+            if not media_file.is_equal_to(filename2):
                 logging.critical("MD5 hash collision for two different files,"
-                                 "handled as dupe: %s %s", filename, filename2)
+                                 "handled as dupe: %s %s", media_file.get_path(), filename2)
+
+            logging.info("%s was detected as duplicate with %s" % (media_file.get_path(), filename2) )
+
             return True
         return False
 
+    def ensure_duplicates_dir(self):
+
+        if not os.path.isdir(self._duplicates_dir):
+            logging.info("Creating duplicates directory: %s" % self._duplicates_dir)
+            os.mkdir(self._duplicates_dir)
+
+
     def add_file(self, filename):
-        pass
+
+        media = MediaFile.build_for(filename)
+
+        if self.is_duplicate(media):
+
+            file = media.get_filename()
+            duplicates_path = self._duplicates_dir+"/"+file
+
+            logging.info(" moving to duplicates: %s" %
+                         (self._duplicates_dir))
+
+            self.ensure_duplicates_dir()
+            media.rename_as(duplicates_path)
+
+        else:
+            if media.move_to_directory_with_date(self._output_dir,
+                                                 self._dir_pattern):
+                self._add_to_db(media.get_directory(), media.get_filename(), media)
+                self.write()

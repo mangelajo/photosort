@@ -8,10 +8,7 @@ __license__ = "GPLv3"
 
 from PIL import Image
 from PIL.ExifTags import TAGS
-
-#import exifread
 import datetime
-import os.path
 import sys
 import time
 
@@ -62,26 +59,31 @@ class Photo(media.MediaFile):
                 raise
         except ValueError:
             return None  # time data '0000:00:00 00:00:00'
+        except TypeError:
+            return None
 
     def datetime(self):
         dt = self._exif_datetime()
         if dt is None:
-            dt = MediaFile.datetime()
+            dt = media.MediaFile.datetime(self)
 
         return dt
 
     def hash(self):
+        """
+        Builds an hexadecimal hash for a picture, extended with the
+        EXIF date as a string, to prevent as much as possible from md5 collisions
+        """
+        if self._hash is not None:
+            return self._hash
+
         media_hash = media.MediaFile.hash(self)
         exif_datetime = self._exif_datetime()
 
         if exif_datetime is not None:
             media_hash += " - " + str(exif_datetime)
-
+        self._hash = media_hash
         return media_hash
-
-    def __str__(self):
-        s = "[Photo file hash=%s]" % (self.hash())
-        return s
 
 
 if __name__ == "__main__":

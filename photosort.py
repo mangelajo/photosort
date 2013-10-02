@@ -7,10 +7,13 @@ __license__ = "GPLv3"
 
 import argparse
 import sys
+import time
 import logging
+
 
 import config
 from photodb import *
+import walk
 
 
 class PhotoSort:
@@ -21,20 +24,29 @@ class PhotoSort:
         logging.basicConfig(filename=self._config.log_file(), level=log_level)
         self._photodb = PhotoDB(self._config)
 
+    def _sync_source(self,src_dir,src_delete):
+        walker = walk.WalkForMedia(src_dir)
+        for file_dir,file_name in walker.find_media():
+            file_path = os.path.join(file_dir,file_name)
+            self._photodb.add_file(file_path)
+
     def sync(self):
-        pass
+        for source,value in self._config.sources().items():
+            self._sync_source(value['dir'], value['delete'])
 
     def rebuild_db(self):
         self._photodb.rebuild()
 
-    def daemonize(self):
-        pass
+    def monitor(self):
+        while True:
+            self.sync()
+            time.sleep(10)
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('op', action="store",
-                        choices=['sync', 'rebuilddb', 'daemon'],
+                        choices=['sync', 'rebuilddb', 'monitor'],
                         help="Operation")
 
     group = parser.add_argument_group('Common parameters')
@@ -51,14 +63,20 @@ def main():
         log_level = logging.DEBUG
     photo_sort = PhotoSort(ns.config, log_level)
 
-    if ns.op == "sync":
-        photo_sort.sync()
+    try:
+        if ns.op == "sync":
+            photo_sort.sync()
 
-    elif ns.op == "rebuilddb":
-        photo_sort.rebuild_db()
+        elif ns.op == "rebuilddb":
+            photo_sort.rebuild_db()
 
-    elif ns.op == "daemon":
-        photo_short.daemonize()
+        elif ns.op == "monitor":
+            photo_sort.monitor()
+        else:
+            print("Unknown operation: %s" % ns.op)
+    except:
+        logging.critical("Unexpected error: %s" % (sys.exc_info()[0]))
 
+        
 if __name__ == "__main__":
     main()
