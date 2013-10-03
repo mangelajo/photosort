@@ -50,9 +50,13 @@ class MediaFile:
     def get_path(self):
         return self._filename
 
-    def hash(self, hasher=hashlib.md5(), blocksize=65536):
+    def hash(self, hasher=None, blocksize=65536):
         if self._hash is not None:
             return self._hash
+
+        if hasher is None:
+            hasher = hashlib.md5()
+
         with open(self._filename, 'rb') as afile:
             buf = afile.read(blocksize)
             while len(buf) > 0:
@@ -79,7 +83,8 @@ class MediaFile:
     def is_equal_to(self,filename):
 
         try:
-            return filecmp.cmp(self._filename, filename, shallow=True)
+            result = filecmp.cmp(self._filename, filename, shallow=True)
+            return result
         except OSError as e:
 
             logging.info("Comparing to %s, file didn't exist anymore, erased or moved?" % filename )

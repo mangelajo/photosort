@@ -150,10 +150,10 @@ class PhotoDB:
         if self.is_duplicate(media):
 
             file = media.get_filename()
-            duplicates_path = self._duplicates_dir+"/"+file
+            duplicates_path = os.path.join(self._duplicates_dir,file)
 
             logging.info(" moving to duplicates: %s" %
-                         (self._duplicates_dir))
+                         duplicates_path)
 
             self.ensure_duplicates_dir()
             media.rename_as(duplicates_path)

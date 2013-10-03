@@ -9,6 +9,7 @@ import argparse
 import sys
 import time
 import logging
+import traceback
 
 
 import config
@@ -76,7 +77,8 @@ def main():
             print("Unknown operation: %s" % ns.op)
     except:
         logging.critical("Unexpected error: %s" % (sys.exc_info()[0]))
+        logging.critical(traceback.format_exc())
 
-        
+
 if __name__ == "__main__":
     main()
