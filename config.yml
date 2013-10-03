@@ -2,14 +2,12 @@
 
 sources:
   dropbox:
-    dir: '/Users/ajo/Dropbox/mobilephotos'
-    delete: False
+    dir: '/Users/ajo/Dropbox/Camera Upload'
   nasinbox:
-    dir: '/Volumes/casa/Fotos/inbox'
-    delete: True
+    dir: '/mnt/nas/Pictures/inbox'
 
 
-output_dir: '/Volumes/casa/Fotos'
+output_dir: '/mnt/nas/Pictures'
 duplicates_dir: 'duplicates'
 log_file: 'photosort.log'
 db_file: 'photosort.db'

@@ -16,6 +16,10 @@ entries by hand if needed, at least on early stages of the project.
 
 In the future this must be an sqlite file.
 
+## Dependencies
+
+photosort depends on PIL and piyaml
+
 ## Configuration
 
 Configuration is stored in YAML format, this is an example file:
@@ -25,7 +29,7 @@ sources:
   dropbox:
     dir: '/Users/ajo/Dropbox/Camera Uploads'
   nasinbox:
-    dir: '/Volumes/casa/Fotos/inbox'
+    dir: '/mnt/nas/Pictures/inbox'
 
 
 output_dir: '/mnt/nas/Pictures'
