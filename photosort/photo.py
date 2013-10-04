@@ -14,7 +14,6 @@ import time
 
 import media
 
-
 class Photo(media.MediaFile):
 
     def __init__(self, filename):

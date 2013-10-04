@@ -1,21 +1,20 @@
 # -*- mode: python; coding: utf-8 -*-
 
+
 __author__ = "Miguel Angel Ajo Pelayo"
 __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
 import argparse
-import sys
-import time
 import logging
 import traceback
 
-
+import sys
+import time
+import photodb
 import config
-from photodb import *
 import walk
-
 
 class PhotoSort:
 
@@ -23,7 +22,7 @@ class PhotoSort:
 
         self._config = config.Config(config_filename)
         logging.basicConfig(filename=self._config.log_file(), level=log_level)
-        self._photodb = PhotoDB(self._config)
+        self._photodb = photodb.PhotoDB(self._config)
 
     def _sync_source(self,src_dir,src_delete):
         walker = walk.WalkForMedia(src_dir)
@@ -59,7 +58,7 @@ def main():
                        help="Enable debugging")
     ns = parser.parse_args()
 
-    log_level = logging.ERROR
+    log_level = logging.INFO
     if ns.debug:
         log_level = logging.DEBUG
     photo_sort = PhotoSort(ns.config, log_level)
@@ -79,6 +78,3 @@ def main():
         logging.critical("Unexpected error: %s" % (sys.exc_info()[0]))
         logging.critical(traceback.format_exc())
 
-
-if __name__ == "__main__":
-    main()

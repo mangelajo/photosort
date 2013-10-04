@@ -1,0 +1,17 @@
+
+sources:
+  dropbox:
+    dir: '/Users/ajo/Dropbox/Camera Upload'
+  nasinbox:
+    dir: '/mnt/nas/Pictures/inbox'
+
+
+output:
+  dir: '/mnt/nas/Pictures'
+  pattern: "%(year)d/%(year)d_%(month)d_%(day)d"
+  duplicates_dir: 'duplicates'
+  chmod: 0o774
+  log_file: 'photosort.log'
+  db_file: 'photosort.db'
+
+

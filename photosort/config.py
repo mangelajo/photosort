@@ -13,12 +13,12 @@ class Config:
     """
     YAML configuration reading class
     """
-    def __init__(self, filename='config.yml'):
+    def __init__(self, filename='/etc/photosort.yml'):
         with open(filename, 'r') as f_in:
             self._data = yaml.safe_load(f_in)
 
     def output_dir(self):
-        return self._data['output_dir']
+        return self._data['output']['dir']
 
     def _relative_or_absolute_to_output(self, filename):
         """
@@ -30,20 +30,26 @@ class Config:
             return filename
         else:
             return self.output_dir()+"/"+filename
+
     def sources(self):
         return self._data['sources']
+
     def log_file(self):
-        return self._relative_or_absolute_to_output(self._data['log_file'])
+        return self._relative_or_absolute_to_output(self._data['output']['log_file'])
 
     def db_file(self):
-        return self._relative_or_absolute_to_output(self._data['db_file'])
+        return self._relative_or_absolute_to_output(self._data['output']['db_file'])
 
     def duplicates_dir(self):
         return self._relative_or_absolute_to_output(
-            self._data['duplicates_dir'])
+            self._data['output']['duplicates_dir'])
 
     def sources(self):
         return self._data['sources']
 
     def dir_pattern(self):
-        return self._data['dir_pattern']
+        return self._data['output']['pattern']
+
+    def output_chmod(self):
+        return self._data['output']['chmod']
+

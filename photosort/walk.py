@@ -6,14 +6,13 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
-
 import datetime
 import os
 import logging
 import fcntl
 import time
 
-from media import MediaFile
+import media
 
 
 class WalkForMedia:
@@ -151,7 +150,7 @@ class WalkForMedia:
                 if file.startswith('.'):
                     continue
 
-                media_file = MediaFile.build_for(file_path)
+                media_file = media.MediaFile.build_for(file_path)
                 file_type = media_file.type()
 
                 if file_type != 'unknown':

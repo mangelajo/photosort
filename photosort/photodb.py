@@ -1,6 +1,7 @@
 # -*- mode: python; coding: utf-8 -*-
 from __future__ import print_function
 
+
 __author__ = "Miguel Angel Ajo Pelayo"
 __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
@@ -8,12 +9,11 @@ __license__ = "GPLv3"
 
 import csv
 import logging
-import filecmp
 import os.path
 
-import walk
-from media import MediaFile
 
+import walk
+import media
 
 class PhotoDB:
     def __init__(self, config):
@@ -112,7 +112,10 @@ class PhotoDB:
         for file_dir, file_name in walker.find_media():
 
             try:
-                media_file = MediaFile.build_for(os.path.join(file_dir, file_name))
+                media_file = photosort.MediaFile.build_for(
+                                os.path.join(file_dir, file_name)
+                             )
+
                 self._add_to_db(file_dir, file_name, media_file)
             except:
                 logging.critical("Unexpected error: %s" % (sys.exc_info()[0]))
