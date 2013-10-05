@@ -51,5 +51,5 @@ class Config:
         return self._data['output']['pattern']
 
     def output_chmod(self):
-        return self._data['output']['chmod']
+        return int(self._data['output']['chmod'],8) # octal conversion
 

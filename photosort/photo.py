@@ -32,7 +32,12 @@ class Photo(media.MediaFile):
          PIL Image item. """
         self.__exif_data = {}
         image = Image.open(self._filename)
-        info = image._getexif()
+        try:
+            info = image._getexif()
+        except AttributeError:
+            return {}
+
+
         if info:
             for tag, value in info.items():
                 decoded = TAGS.get(tag, tag)

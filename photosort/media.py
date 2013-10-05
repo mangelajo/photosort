@@ -26,7 +26,7 @@ class MediaFile:
     def guess_file_type(filename):
 
         extension = filename.lower().split('.')[-1]
-        if extension in ('jpeg', 'jpg'):
+        if extension in ('jpeg', 'jpg','cr2','raw','png'):
             return 'photo'
         if extension in ('mpeg', 'mpg', 'mov', 'mp4'):
             return 'movie'
@@ -37,7 +37,7 @@ class MediaFile:
 
         file_type = MediaFile.guess_file_type(filename)
         if file_type is 'photo':
-            import photo
+            import photo    # delayed import to avoid circular dependencies
             return photo.Photo(filename)
         else:
             return MediaFile(filename)
@@ -94,9 +94,26 @@ class MediaFile:
     def type(self):
         return self._file_type
 
-    def rename_as(self,new_filename):
+    def makedirs_f(self, path, mode):
+        paths = os.path.split(path)
+
+        total_path = ''
+        for directory in paths:
+            total_path = os.path.join(total_path,directory)
+            if os.path.isdir(total_path):
+                continue
+            else:
+                os.mkdir(total_path,mode)
+
+
+    def rename_as(self,new_filename,file_mode = 0o774):
+
+        self.makedirs_f(os.path.dirname(new_filename),file_mode)
+
         try:
-            return  shutil.move(self._filename, new_filename)
+            result = shutil.move(self._filename, new_filename)
+            os.chmod(new_filename,file_mode)
+            return result
         except OSError as e:
             logging.error("Unable to move: %s" % e)
             return False
@@ -104,6 +121,8 @@ class MediaFile:
         except shutil.Error as e:
             logging.error("Unable to move: %s" % e)
             return False
+
+        return True
 
     def calculate_datetime_dir(self,format):
         dt = self.datetime()
@@ -112,32 +131,24 @@ class MediaFile:
 
         return format % data
 
-    def move_to_directory_with_date(self,directory,format):
+    def move_to_directory_with_date(self,directory,format,file_mode=0o774):
 
         out_dir = directory+"/"+self.calculate_datetime_dir(format)
 
         try:
             os.mkdir(out_dir)
+            os.chmod(out_dir,file_mode)
         except OSError as e:
             pass # it already exists
 
         new_filename = out_dir + "/"+ self.get_filename()
         logging.info("moving %s to %s" % (self._filename, new_filename))
 
-        try:
-            shutil.move(self._filename, new_filename)
-        except OSError as e:
-            logging.error("Unable to move: %s" % e)
+        if self.rename_as(new_filename):
+            self._filename = new_filename
+            return True
+        else:
             return False
-
-        except shutil.Error as e:
-            logging.error("Unable to move: %s" % e)
-            return False
-
-        self._filename = new_filename
-
-        return True
-
 
 if __name__ == "__main__":
     file = MediaFile.build_for(sys.argv[1])

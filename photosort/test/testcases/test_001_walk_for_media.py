@@ -5,15 +5,18 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
-import unittest
+import photosort.test
+from photosort import walk
 
-class TestWalkForMedia(unittest.TestCase):
+class TestWalkForMedia(photosort.test.TestCase):
 
     def setUp(self):
-        pass
+        self.media1 = self.get_data_path('media1')
         
     def test_directory_inspection(self):
-        pass
+        walker = walk.WalkForMedia(self.media1)
+        files = [file for root, file in walker.find_media()]
+        self.assertTrue('img1.jpg' in files)
 
     def test_ignores(self):
         pass

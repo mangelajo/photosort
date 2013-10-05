@@ -24,6 +24,7 @@ class PhotoDB:
         self._dir_pattern = config.dir_pattern()
         self._inputs = (config.sources()[source]['dir']
                         for source in config.sources().keys())
+        self._file_mode = config.output_chmod()
         self._hashes = {}
         self.load()
 
@@ -62,7 +63,7 @@ class PhotoDB:
             pass
 
         try:
-            os.rename(self._db_file, self._db_file+".bak")
+            os.rename(self._db_file, self._db_file+".bak",self._file_mode)
         except:
             pass
 
@@ -112,7 +113,7 @@ class PhotoDB:
         for file_dir, file_name in walker.find_media():
 
             try:
-                media_file = photosort.MediaFile.build_for(
+                media_file = media.MediaFile.build_for(
                                 os.path.join(file_dir, file_name)
                              )
 
@@ -139,30 +140,25 @@ class PhotoDB:
             return True
         return False
 
-    def ensure_duplicates_dir(self):
-
-        if not os.path.isdir(self._duplicates_dir):
-            logging.info("Creating duplicates directory: %s" % self._duplicates_dir)
-            os.mkdir(self._duplicates_dir)
 
 
     def add_file(self, filename):
 
-        media = MediaFile.build_for(filename)
+        media_file = media.MediaFile.build_for(filename)
 
-        if self.is_duplicate(media):
+        if self.is_duplicate(media_file):
 
-            file = media.get_filename()
+            file = media_file.get_filename()
             duplicates_path = os.path.join(self._duplicates_dir,file)
 
             logging.info(" moving to duplicates: %s" %
                          duplicates_path)
 
-            self.ensure_duplicates_dir()
-            media.rename_as(duplicates_path)
+            media_file.rename_as(duplicates_path,self._file_mode)
 
         else:
-            if media.move_to_directory_with_date(self._output_dir,
-                                                 self._dir_pattern):
-                self._add_to_db(media.get_directory(), media.get_filename(), media)
+            if media_file.move_to_directory_with_date(self._output_dir,
+                                                 self._dir_pattern,
+                                                 self._file_mode):
+                self._add_to_db(media_file.get_directory(), media_file.get_filename(), media_file)
                 self.write()

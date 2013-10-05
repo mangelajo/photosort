@@ -5,9 +5,9 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
-import unittest
+import photosort.test
 
-class TestQAWorks(unittest.TestCase):
+class TestQAWorks(photosort.test.TestCase):
 
     def setUp(self):
         self.dummy = None

@@ -38,6 +38,8 @@ class WalkForMedia:
         ct1 = os.path.getmtime(f_name)
         ct2 = os.path.getctime(f_name)
 
+        os.remove(f_name) # cleanup the file
+
         # it can differ from windows to UN*X
         ct =max(ct1,ct2)
 

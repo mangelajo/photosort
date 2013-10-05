@@ -6,7 +6,6 @@ __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
 import unittest
-import os.path
 import platform
 
 if platform.python_version() < '2.7':
@@ -14,9 +13,6 @@ if platform.python_version() < '2.7':
 else:
     import unittest
 
-
-def get_test_data_path(filename):
-    return os.path.join(os.path.dirname(__file__),'data',filename)
 
 def main():
     tests_dir = os.path.join(os.path.dirname(__file__),'testcases')

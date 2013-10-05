@@ -1,14 +1,14 @@
 
 sources:
   dropbox:
-    dir: '/Users/ajo/Dropbox/Camera Upload'
+    dir: '/Users/ajo/Dropbox/Camera Uploads'
   nasinbox:
     dir: '/mnt/nas/Pictures/inbox'
 
 
 output:
   dir: '/mnt/nas/Pictures'
-  pattern: "%(year)d/%(year)d_%(month)d_%(day)d"
+  pattern: "%(year)d/%(year)04d_%(month)02d_%(day)02d"
   duplicates_dir: 'duplicates'
   chmod: 0o774
   log_file: 'photosort.log'

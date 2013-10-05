@@ -15,6 +15,7 @@ import time
 import photodb
 import config
 import walk
+import os
 
 class PhotoSort:
 
@@ -24,7 +25,7 @@ class PhotoSort:
         logging.basicConfig(filename=self._config.log_file(), level=log_level)
         self._photodb = photodb.PhotoDB(self._config)
 
-    def _sync_source(self,src_dir,src_delete):
+    def _sync_source(self,src_dir):
         walker = walk.WalkForMedia(src_dir)
         for file_dir,file_name in walker.find_media():
             file_path = os.path.join(file_dir,file_name)
@@ -32,7 +33,7 @@ class PhotoSort:
 
     def sync(self):
         for source,value in self._config.sources().items():
-            self._sync_source(value['dir'], value['delete'])
+            self._sync_source(value['dir'])
 
     def rebuild_db(self):
         self._photodb.rebuild()
