@@ -127,20 +127,21 @@ class WalkForMedia:
                          "cannot find media")
             return
 
+        if os.path.split(self._rootdir)[-1].startswith('.'):
+            logging.info(self._rootdir +
+                         " in the list to be ignored => ignoring")
+            return
+
+        if self._rootdir in self._ignores:
+            logging.info(self._rootdir +
+                         " is a hidden directory => ignoring")
+            return
+
         for root, subFolders, files in os.walk(self._rootdir):
 
-            # if last directory starts with "." ignore it (.thumbnails, etc...)
-            if os.path.split(root)[-1].startswith('.'):
-                continue
-
-            # check if we have directories to ignore
-            skip = False
-            for ignore in self._ignores:
-                if root.startswith(ignore):
-                    skip = True
-
-            if skip:
-                continue
+            subFolders[:] = [sf for sf in subFolders
+                    if not sf.startswith('.') 
+                    and not sf in self._ignores]
 
             for file in files:
 
