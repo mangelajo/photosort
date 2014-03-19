@@ -21,6 +21,13 @@ class PhotoDB:
         self.load()
 
     def load(self, merge=False, filename=None):
+	"""
+	loads an existing DB
+
+	If 'merge' is True, the values of previously loaded DBs (if any)
+	are kept.
+	If the path of a file is passed in 'filename', then 
+	"""
 
         if filename is None:
             filename = self._db_file
@@ -96,7 +103,10 @@ class PhotoDB:
         return True
 
     def is_duplicate(self, media_file):
-
+	"""
+	checks if the given file has been already sorted
+	returns True if so, False if not
+	"""
         hash = media_file.hash()
 
         if hash in self._hashes:

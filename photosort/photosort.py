@@ -52,6 +52,11 @@ class PhotoSort:
         self._photodb.write()
 
     def rebuild_db(self):
+	"""
+	registers in the DB the media files already existing in the
+	target directory to be able to detect duplicates and avoid
+	overwritting
+	"""
         walker = walk.WalkForMedia(self._config.output_dir(), ignores=self._inputs)
         for file_dir,file_name in walker.find_media():
             try:
@@ -63,10 +68,17 @@ class PhotoSort:
         self._photodb.write()
 
     def sync(self):
+	"""
+	ensures that the media files of the input directories are sorted
+	"""
         for source,value in self._config.sources().items():
             self._sync_source(value['dir'])
 
     def monitor(self):
+	"""
+	regularly (10s at the time of this writting)
+	ensures that the media files of the input directories are sorted
+	"""
         while True:
             self.sync()
             time.sleep(10)
