@@ -118,6 +118,10 @@ class MediaFile:
             logging.error("Unable to move: %s" % e)
             return False
 
+        except IOError as e:
+            logging.error("Unable to move: %s" % e)
+            return False
+
         except shutil.Error as e:
             logging.error("Unable to move: %s" % e)
             return False
