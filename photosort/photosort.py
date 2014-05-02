@@ -93,7 +93,7 @@ def main():
     group = parser.add_argument_group('Common parameters')
     group.add_argument('--config', action="store",
                        help="Customized configuration file",
-                       default='config.yml')
+                       default='/etc/photosort.yml')
     group.add_argument('--debug',
                        action="store_true",
                        help="Enable debugging")
