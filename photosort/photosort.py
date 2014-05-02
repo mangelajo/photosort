@@ -62,7 +62,7 @@ class PhotoSort:
             try:
                 file_path = os.path.join(file_dir, file_name)
                 media_file = media.MediaFile.build_for(file_path)
-                self._photodb._add_to_db(file_dir, file_name, media_file)
+                self._photodb.add_to_db(file_dir, file_name, media_file)
             except:
                 logging.critical("Unexpected error: %s" % (sys.exc_info()[0]))
         self._photodb.write()
