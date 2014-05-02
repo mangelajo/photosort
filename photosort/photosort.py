@@ -25,11 +25,11 @@ class PhotoSort:
         self._config = config.Config(config_filename)
         logging.basicConfig(filename=self._config.log_file(), level=log_level)
         self._photodb = photodb.PhotoDB(self._config)
-        self._duplicates_dir = config.duplicates_dir()
-        self._dir_pattern = config.dir_pattern()
-        self._inputs = (config.sources()[source]['dir']
-                        for source in config.sources().keys())
-        self._file_mode = config.output_chmod()
+        self._duplicates_dir = self._config.duplicates_dir()
+        self._dir_pattern = self._config.dir_pattern()
+        self._inputs = (self._config.sources()[source]['dir']
+                        for source in self._config.sources().keys())
+        self._file_mode = self._config.output_chmod()
 
     def _sync_source(self,src_dir):
         walker = walk.WalkForMedia(src_dir)
