@@ -47,24 +47,32 @@ class Photo(media.MediaFile):
         return self.__exif_data
 
     def _exif_datetime(self):
+        exif_datetime_str = ""
 
-        try:
-            exif_datetime_str = self._exif_data()['DateTimeDigitized']
+        exif_data = self._exif_data()
+        for exif_tag in ['DateTimeOriginal', 'Image DateTime', 'DateTimeDigitized']:
+            try:
+                exif_datetime_str = exif_data[exif_tag]
+            except KeyError:
+                logging.debug("EXIF tag not available: " + exif_tag)
+                continue
+            except IOError as e:
+                if str(e) == "not enough data":
+                    return None
+                if str(e) == "cannot identify image file":
+                    return None
+                else:
+                    raise
+            except ValueError:
+                return None  # time data '0000:00:00 00:00:00'
+            # only reached if the datetime information properly obtained
+            logging.debug("photo date and time obtained from: " + exif_tag)
+            break
+
+        if exif_datetime_str:
             return datetime.datetime.strptime(str(exif_datetime_str),
                                               '%Y:%m:%d %H:%M:%S')
-        except KeyError:
-            return None
-        except IOError as e:
-
-            if str(e) == "not enough data":
-                return None
-            if str(e) == "cannot identify image file":
-                return None
-            else:
-                raise
-        except ValueError:
-            return None  # time data '0000:00:00 00:00:00'
-        except TypeError:
+        else:
             return None
 
     def datetime(self):
