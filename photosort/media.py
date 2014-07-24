@@ -108,12 +108,15 @@ class MediaFile:
 
     def rename_as(self,new_filename,file_mode = 0o774):
 
-        self.makedirs_f(os.path.dirname(new_filename),file_mode)
+        try:
+            self.makedirs_f(os.path.dirname(new_filename),file_mode)
+        except:
+            logging.error("Unable to move: %s" % new_filename)
+            return False
 
         try:
             result = shutil.move(self._filename, new_filename)
             os.chmod(new_filename,file_mode)
-            return result
         except OSError as e:
             logging.error("Unable to move: %s" % e)
             return False
@@ -125,6 +128,9 @@ class MediaFile:
         except shutil.Error as e:
             logging.error("Unable to move: %s" % e)
             return False
+
+        except:
+            raise
 
         return True
 
@@ -157,3 +163,4 @@ class MediaFile:
 if __name__ == "__main__":
     file = MediaFile.build_for(sys.argv[1])
     print(file)
+
