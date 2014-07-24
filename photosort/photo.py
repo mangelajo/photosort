@@ -11,6 +11,7 @@ from PIL.ExifTags import TAGS
 import datetime
 import sys
 import time
+import logging
 
 import media
 
@@ -68,6 +69,7 @@ class Photo(media.MediaFile):
 
     def datetime(self):
         dt = self._exif_datetime()
+        logging.debug("date and time: " + str(dt))
         if dt is None:
             dt = media.MediaFile.datetime(self)
 
