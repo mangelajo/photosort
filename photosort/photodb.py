@@ -35,6 +35,7 @@ class PhotoDB:
         if not merge:
             self._hashes = {}
         try:
+            logging.info("----------")
             logging.info("DB Loading %s" % filename)
             with open(filename, 'r') as f_in:
                 dbreader = csv.reader(f_in, delimiter=',')
@@ -50,8 +51,11 @@ class PhotoDB:
                                               'type': file_type}
             logging.info("DB Load finished, %d entries" % len(self._hashes))
         except IOError as e:
-            logging.error("Error opening db file %s" % self._db_file)
-            if e.errno!=2:
+            if e.errno==2:
+                logging.debug("DB file %s doesn't exist " % self._db_file + \
+                    "yet, it will get created")
+            else:
+                logging.error("Error opening DB file %s" % self._db_file)
                 raise
 
     def write(self):
