@@ -37,7 +37,7 @@ class TestPhotoMedia(photosort.test.TestCase):
 
     def test_datatime_dir(self):
         dir_fmt = '%(year)d/%(year)04d_%(month)02d_%(day)02d'
-        dir_str = self.photo.calculate_datetime_dir(dir_fmt)
+        dir_str = self.photo.calculate_datetime(dir_fmt)
         self.assertEqual(dir_str,"2013/2013_08_24")
 
     def test_get_filename(self):

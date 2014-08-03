@@ -27,6 +27,7 @@ class PhotoSort:
         self._photodb = photodb.PhotoDB(self._config)
         self._duplicates_dir = self._config.duplicates_dir()
         self._dir_pattern = self._config.dir_pattern()
+        self._file_prefix = self._config.file_prefix()
         self._inputs = (self._config.sources()[source]['dir']
                         for source in self._config.sources().keys())
         self._file_mode = self._config.output_chmod()
@@ -47,6 +48,7 @@ class PhotoSort:
             else:
                 if media_file.move_to_directory_with_date(self._photodb._output_dir,
                                                      self._dir_pattern,
+                                                     self._file_prefix,
                                                      self._file_mode):
                     self._photodb.add_to_db(media_file.get_directory(), media_file.get_filename(), media_file)
         self._photodb.write()

@@ -48,7 +48,10 @@ class Config:
         return self._data['sources']
 
     def dir_pattern(self):
-        return self._data['output']['pattern']
+        return self._data['output']['dir_pattern']
+
+    def file_prefix(self):
+        return self._data['output']['file_prefix']
 
     def output_chmod(self):
         return int(self._data['output']['chmod'],8) # octal conversion
