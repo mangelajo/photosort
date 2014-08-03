@@ -11,6 +11,7 @@ from PIL.ExifTags import TAGS
 import datetime
 import sys
 import time
+import logging
 
 import media
 
@@ -19,13 +20,6 @@ class Photo(media.MediaFile):
     def __init__(self, filename):
         media.MediaFile.__init__(self, filename)
         self.__exif_data = None
-
-    #def _exif_data(self):
-    #    if self.__exif_data is None:
-    #        with open(self._filename, 'r') as f:
-    #            self.__exif_data = exifread.process_file(f)
-    #
-    #    return self.__exif_data
 
     def _exif_data(self):
         """Returns a dictionary from the exif data of an
@@ -46,28 +40,37 @@ class Photo(media.MediaFile):
         return self.__exif_data
 
     def _exif_datetime(self):
+        exif_datetime_str = ""
 
-        try:
-            exif_datetime_str = self._exif_data()['DateTimeDigitized']
+        exif_data = self._exif_data()
+        for exif_tag in ['DateTimeOriginal', 'Image DateTime', 'DateTimeDigitized']:
+            try:
+                exif_datetime_str = exif_data[exif_tag]
+            except KeyError:
+                logging.debug("EXIF tag not available: " + exif_tag)
+                continue
+            except IOError as e:
+                if str(e) == "not enough data":
+                    return None
+                if str(e) == "cannot identify image file":
+                    return None
+                else:
+                    raise
+            except ValueError:
+                return None  # time data '0000:00:00 00:00:00'
+            # only reached if the datetime information properly obtained
+            logging.debug("photo date and time obtained from: " + exif_tag)
+            break
+
+        if exif_datetime_str:
             return datetime.datetime.strptime(str(exif_datetime_str),
                                               '%Y:%m:%d %H:%M:%S')
-        except KeyError:
-            return None
-        except IOError as e:
-
-            if str(e) == "not enough data":
-                return None
-            if str(e) == "cannot identify image file":
-                return None
-            else:
-                raise
-        except ValueError:
-            return None  # time data '0000:00:00 00:00:00'
-        except TypeError:
+        else:
             return None
 
     def datetime(self):
         dt = self._exif_datetime()
+        logging.debug("date and time: " + str(dt))
         if dt is None:
             dt = media.MediaFile.datetime(self)
 

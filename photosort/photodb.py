@@ -11,24 +11,23 @@ import csv
 import logging
 import os.path
 
-
-import walk
-import media
-
 class PhotoDB:
     def __init__(self, config):
 
         self._db_file = config.db_file()
         self._output_dir = config.output_dir()
-        self._duplicates_dir = config.duplicates_dir()
-        self._dir_pattern = config.dir_pattern()
-        self._inputs = (config.sources()[source]['dir']
-                        for source in config.sources().keys())
         self._file_mode = config.output_chmod()
         self._hashes = {}
         self.load()
 
     def load(self, merge=False, filename=None):
+	"""
+	loads an existing DB
+
+	If 'merge' is True, the values of previously loaded DBs (if any)
+	are kept.
+	If the path of a file is passed in 'filename', then 
+	"""
 
         if filename is None:
             filename = self._db_file
@@ -36,6 +35,7 @@ class PhotoDB:
         if not merge:
             self._hashes = {}
         try:
+            logging.info("----------")
             logging.info("DB Loading %s" % filename)
             with open(filename, 'r') as f_in:
                 dbreader = csv.reader(f_in, delimiter=',')
@@ -51,8 +51,11 @@ class PhotoDB:
                                               'type': file_type}
             logging.info("DB Load finished, %d entries" % len(self._hashes))
         except IOError as e:
-            logging.error("Error opening db file %s" % self._db_file)
-            if e.errno!=2:
+            if e.errno==2:
+                logging.debug("DB file %s doesn't exist " % self._db_file + \
+                    "yet, it will get created")
+            else:
+                logging.error("Error opening DB file %s" % self._db_file)
                 raise
 
     def write(self):
@@ -81,7 +84,7 @@ class PhotoDB:
 
                 dbwriter.writerow([file_dir, file_name, file_type, hash])
 
-    def _add_to_db(self, file_dir, file_name, media_file):
+    def add_to_db(self, file_dir, file_name, media_file):
         try:
             hash = media_file.hash()
         except IOError as e:
@@ -103,27 +106,11 @@ class PhotoDB:
                                               hash))
         return True
 
-
-    def rebuild(self):
-        """
-            rebuilds the database using the output directory
-        """
-        walker = walk.WalkForMedia(self._output_dir, ignores=self._inputs)
-
-        for file_dir, file_name in walker.find_media():
-
-            try:
-                media_file = media.MediaFile.build_for(
-                                os.path.join(file_dir, file_name)
-                             )
-
-                self._add_to_db(file_dir, file_name, media_file)
-            except:
-                logging.critical("Unexpected error: %s" % (sys.exc_info()[0]))
-        self.write()
-
     def is_duplicate(self, media_file):
-
+	"""
+	checks if the given file has been already sorted
+	returns True if so, False if not
+	"""
         hash = media_file.hash()
 
         if hash in self._hashes:
@@ -139,26 +126,3 @@ class PhotoDB:
 
             return True
         return False
-
-
-
-    def add_file(self, filename):
-
-        media_file = media.MediaFile.build_for(filename)
-
-        if self.is_duplicate(media_file):
-
-            file = media_file.get_filename()
-            duplicates_path = os.path.join(self._duplicates_dir,file)
-
-            logging.info(" moving to duplicates: %s" %
-                         duplicates_path)
-
-            media_file.rename_as(duplicates_path,self._file_mode)
-
-        else:
-            if media_file.move_to_directory_with_date(self._output_dir,
-                                                 self._dir_pattern,
-                                                 self._file_mode):
-                self._add_to_db(media_file.get_directory(), media_file.get_filename(), media_file)
-                self.write()
