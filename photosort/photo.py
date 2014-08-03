@@ -21,13 +21,6 @@ class Photo(media.MediaFile):
         media.MediaFile.__init__(self, filename)
         self.__exif_data = None
 
-    #def _exif_data(self):
-    #    if self.__exif_data is None:
-    #        with open(self._filename, 'r') as f:
-    #            self.__exif_data = exifread.process_file(f)
-    #
-    #    return self.__exif_data
-
     def _exif_data(self):
         """Returns a dictionary from the exif data of an
          PIL Image item. """
