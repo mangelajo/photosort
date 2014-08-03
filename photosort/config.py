@@ -51,7 +51,13 @@ class Config:
         return self._data['output']['dir_pattern']
 
     def file_prefix(self):
-        return self._data['output']['file_prefix']
+        try:
+            return self._data['output']['file_prefix']
+        except KeyError, exc:
+            if str(exc) == "'file_prefix'":
+                return ""
+            else:
+                raise
 
     def output_chmod(self):
         return int(self._data['output']['chmod'],8) # octal conversion

@@ -42,7 +42,12 @@ photosort depends on PIL and piyaml
 
 ## Configuration
 
-Configuration is stored in YAML format, this is an example file:
+Configuration is stored in YAML format
+
+Don't create the field 'file_prefix' if no change is desired in the filename 
+of the media items.
+
+This is an example file:
 
 ```
 sources:
