@@ -129,12 +129,12 @@ class WalkForMedia:
 
         if os.path.split(self._rootdir)[-1].startswith('.'):
             logging.info(self._rootdir +
-                         " in the list to be ignored => ignoring")
+                         " is a hidden directory => ignoring")
             return
 
         if self._rootdir in self._ignores:
             logging.info(self._rootdir +
-                         " is a hidden directory => ignoring")
+                         " in the list to be ignored => ignoring")
             return
 
         for root, subFolders, files in os.walk(self._rootdir):
