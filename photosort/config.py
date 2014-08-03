@@ -48,7 +48,13 @@ class Config:
         return self._data['sources']
 
     def dir_pattern(self):
-        return self._data['output']['dir_pattern']
+        try:
+            return self._data['output']['dir_pattern']
+        except KeyError, exc:
+            if str(exc) == "'dir_pattern'":
+                return self._data['output']['pattern']
+            else:
+                raise
 
     def file_prefix(self):
         try:
