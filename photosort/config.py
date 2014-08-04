@@ -48,7 +48,22 @@ class Config:
         return self._data['sources']
 
     def dir_pattern(self):
-        return self._data['output']['pattern']
+        try:
+            return self._data['output']['dir_pattern']
+        except KeyError, exc:
+            if str(exc) == "'dir_pattern'":
+                return self._data['output']['pattern']
+            else:
+                raise
+
+    def file_prefix(self):
+        try:
+            return self._data['output']['file_prefix']
+        except KeyError, exc:
+            if str(exc) == "'file_prefix'":
+                return ""
+            else:
+                raise
 
     def output_chmod(self):
         return int(self._data['output']['chmod'],8) # octal conversion

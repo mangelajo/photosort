@@ -134,16 +134,16 @@ class MediaFile:
 
         return True
 
-    def calculate_datetime_dir(self,format):
+    def calculate_datetime(self,format):
         dt = self.datetime()
         data = {'year': dt.year, 'month': dt.month, 'day': dt.day,
                 'hour': dt.hour, 'minute': dt.minute, 'second': dt.second }
 
         return format % data
 
-    def move_to_directory_with_date(self,directory,format,file_mode=0o774):
+    def move_to_directory_with_date(self,directory,dir_format,file_format,file_mode=0o774):
 
-        out_dir = directory+"/"+self.calculate_datetime_dir(format)
+        out_dir = directory + "/" + self.calculate_datetime(dir_format)
 
         try:
             os.mkdir(out_dir)
@@ -151,7 +151,7 @@ class MediaFile:
         except OSError as e:
             pass # it already exists
 
-        new_filename = out_dir + "/"+ self.get_filename()
+        new_filename = out_dir + "/" + self.calculate_datetime(file_format) + self.get_filename()
         logging.info("moving %s to %s" % (self._filename, new_filename))
 
         if self.rename_as(new_filename):
