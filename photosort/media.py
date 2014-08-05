@@ -155,7 +155,7 @@ class MediaFile:
         new_filename = out_dir + "/" + self.calculate_datetime(file_format) + self.get_filename()
         logging.info("moving %s to %s" % (self._filename, new_filename))
 
-        if self.rename_as(new_filename):
+        if self.rename_as(new_filename, file_mode):
             self._filename = new_filename
             return True
         else:
