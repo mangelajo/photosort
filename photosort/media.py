@@ -10,6 +10,7 @@ import hashlib
 import logging
 import os.path
 import os
+import stat
 import sys
 import datetime
 import shutil
@@ -103,7 +104,7 @@ class MediaFile:
             if os.path.isdir(total_path):
                 continue
             else:
-                os.mkdir(total_path,mode)
+                os.mkdir(total_path,mode | stat.S_IXUSR)
 
 
     def rename_as(self,new_filename,file_mode = 0o774):
@@ -147,14 +148,14 @@ class MediaFile:
 
         try:
             os.mkdir(out_dir)
-            os.chmod(out_dir,file_mode)
+            os.chmod(out_dir,file_mode | stat.S_IXUSR)
         except OSError as e:
             pass # it already exists
 
         new_filename = out_dir + "/" + self.calculate_datetime(file_format) + self.get_filename()
         logging.info("moving %s to %s" % (self._filename, new_filename))
 
-        if self.rename_as(new_filename):
+        if self.rename_as(new_filename, file_mode):
             self._filename = new_filename
             return True
         else:

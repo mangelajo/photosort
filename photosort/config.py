@@ -44,9 +44,6 @@ class Config:
         return self._relative_or_absolute_to_output(
             self._data['output']['duplicates_dir'])
 
-    def sources(self):
-        return self._data['sources']
-
     def dir_pattern(self):
         try:
             return self._data['output']['dir_pattern']
