@@ -12,7 +12,6 @@ import tempfile
 import os
 import stat
 import time
-import decimal
 
 class TestMovieMedia(photosort.test.TestCase):
 
