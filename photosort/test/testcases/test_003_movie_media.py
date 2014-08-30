@@ -32,8 +32,10 @@ class TestMovieMedia(photosort.test.TestCase):
 
     def test_datetime(self):
         mtime = time.localtime(self.mov1_mtime)
-        expected_datetime = time.strftime("%Y-%m-%d %H:%M:", mtime)# it must come from exif data
-        expected_datetime += str(round(mtime[5] + ( self.mov1_mtime % 1 ), 6))
+        expected_datetime = time.strftime("%Y-%m-%d %H:%M:%S", mtime)# it must come from exif data
+        decimals = "%.6g" % (round(self.mov1_mtime % 1, 6))
+        ms = decimals.split('.')[1]
+        expected_datetime += '.' + ms
 
         self.assertEqual(str(self.movie.datetime()),expected_datetime)
 
