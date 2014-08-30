@@ -7,6 +7,7 @@ __license__ = "GPLv3"
 
 import unittest
 import platform
+import os.path
 
 if platform.python_version() < '2.7':
     unittest = __import__('unittest2')

@@ -142,7 +142,7 @@ class MediaFile:
 
         return format % data
 
-    def move_to_directory_with_date(self,directory,dir_format,file_format,file_mode=0o774):
+    def move_to_directory_with_date(self,directory,dir_format,file_format='',file_mode=0o774):
 
         out_dir = directory + "/" + self.calculate_datetime(dir_format)
 
