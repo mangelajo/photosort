@@ -152,7 +152,11 @@ class MediaFile:
         except OSError as e:
             pass # it already exists
 
-        new_filename = out_dir + "/" + self.calculate_datetime(file_format) + self.get_filename()
+        if file_format:
+            file_prefix = self.calculate_datetime(file_format) + self.get_filename()
+        else:
+            file_prefix = self.get_filename()
+        new_filename = out_dir + "/" + file_prefix
         logging.info("moving %s to %s" % (self._filename, new_filename))
 
         if self.rename_as(new_filename, file_mode):
