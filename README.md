@@ -38,7 +38,7 @@ In the future this must be an sqlite file.
 
 ## Dependencies
 
-photosort depends on PIL and piyaml
+photosort depends on Pillow and piyaml
 
 ## Configuration
 
