@@ -16,7 +16,7 @@ setuptools.setup(
             'console_scripts': [
                 'photosort = photosort.photosort:main'
             ]},
-        install_requires = ['pyaml', 'PIL'],
+        install_requires = ['pyaml', 'Pillow'],
         data_files = [('etc', ['etc/photosort.yml'])],
         test_suite = 'photosort.test.testcases'
         )
