@@ -28,7 +28,7 @@ class Photo(media.MediaFile):
         try:
             image = Image.open(self._filename)
         except IOError as e:
-            if str(e).startswith("cannot identify image file "):
+            if str(e).startswith("cannot identify image file"):
                 return {}
             else:
                 raise
