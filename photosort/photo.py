@@ -25,10 +25,17 @@ class Photo(media.MediaFile):
         """Returns a dictionary from the exif data of an
          PIL Image item. """
         self.__exif_data = {}
-        image = Image.open(self._filename)
+        try:
+            image = Image.open(self._filename)
+        except IOError as e:
+            if str(e).startswith("cannot identify image file"):
+                return {}
+            else:
+                raise
+
         try:
             info = image._getexif()
-        except AttributeError:
+        except (AttributeError, IndexError):
             return {}
 
 
@@ -62,9 +69,18 @@ class Photo(media.MediaFile):
             logging.debug("photo date and time obtained from: " + exif_tag)
             break
 
+        if exif_datetime_str == '0000:00:00 00:00:00':
+            return None
+
         if exif_datetime_str:
-            return datetime.datetime.strptime(str(exif_datetime_str),
+            try:
+                return datetime.datetime.strptime(str(exif_datetime_str),
                                               '%Y:%m:%d %H:%M:%S')
+            except UnicodeEncodeError as e:
+                if str(e).startswith("'ascii' codec can't encode character"):
+                    return None
+                else:
+                    raise
         else:
             return None
 

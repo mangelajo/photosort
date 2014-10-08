@@ -44,7 +44,6 @@ class TestPhotoMedia(photosort.test.TestCase):
         self.assertEqual(self.photo.get_filename(),'img1.jpg')
 
     def test_rename(self):
-
         tmpdir = tempfile.gettempdir()
         tmpfile = tmpdir + '/' + self.photo.get_filename()
         tmpfile_renamed = tmpdir + '/R' + self.photo.get_filename()
@@ -64,6 +63,7 @@ class TestPhotoMedia(photosort.test.TestCase):
         tmpdir = tempfile.gettempdir()
         tmpfile = tmpdir + '/' + self.photo.get_filename()
         dir_fmt = '%(year)d/%(year)04d_%(month)02d_%(day)02d'
+        file_fmt = '%(year)04d%(month)02d%(day)02d%(hour)02d%(minute)02d%(second)02d_'
 
         shutil.copy(self.photo.get_path(), tmpfile)
         photo_t = media.MediaFile.build_for(tmpfile)
@@ -73,7 +73,13 @@ class TestPhotoMedia(photosort.test.TestCase):
 
         self.assertTrue(self.photo.is_equal_to(tmpdir+'/2013/2013_08_24/img1.jpg'))
 
+        shutil.copy(self.photo.get_path(), tmpfile)
+        photo_t = media.MediaFile.build_for(tmpfile)
 
+        shutil.rmtree(tmpdir+'/2013',ignore_errors=True)
+        photo_t.move_to_directory_with_date(tmpdir,dir_fmt, file_fmt)
+
+        self.assertTrue(self.photo.is_equal_to(tmpdir+'/2013/2013_08_24/20130824130552_img1.jpg'))
 
 if __name__ == '__main__':
     unittest.main()

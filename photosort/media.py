@@ -27,7 +27,7 @@ class MediaFile:
     def guess_file_type(filename):
 
         extension = filename.lower().split('.')[-1]
-        if extension in ('jpeg', 'jpg', 'cr2', 'raw', 'png', 'arw', 'thm'):
+        if extension in ('jpeg', 'jpg', 'cr2', 'raw', 'png', 'arw', 'thm', 'orf'):
             return 'photo'
         if extension in ('mpeg', 'mpg', 'mov', 'mp4', 'avi'):
             return 'movie'
@@ -142,7 +142,7 @@ class MediaFile:
 
         return format % data
 
-    def move_to_directory_with_date(self,directory,dir_format,file_format,file_mode=0o774):
+    def move_to_directory_with_date(self,directory,dir_format,file_format='',file_mode=0o774):
 
         out_dir = directory + "/" + self.calculate_datetime(dir_format)
 
@@ -152,7 +152,11 @@ class MediaFile:
         except OSError as e:
             pass # it already exists
 
-        new_filename = out_dir + "/" + self.calculate_datetime(file_format) + self.get_filename()
+        if file_format:
+            file_prefix = self.calculate_datetime(file_format) + self.get_filename()
+        else:
+            file_prefix = self.get_filename()
+        new_filename = out_dir + "/" + file_prefix
         logging.info("moving %s to %s" % (self._filename, new_filename))
 
         if self.rename_as(new_filename, file_mode):
