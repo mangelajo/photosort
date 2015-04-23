@@ -41,7 +41,12 @@ class PhotoSort:
                                 level=log_level)
 
     def _sync_source(self,src_dir):
-        walker = walk.WalkForMedia(src_dir)
+        try:
+            walker = walk.WalkForMedia(src_dir)
+        except IOError:
+            logging.error("Unable to walk dir %s", src_dir)
+            return
+
         for file_dir,file_name in walker.find_media():
             file_path = os.path.join(file_dir,file_name)
             media_file = media.MediaFile.build_for(file_path)
