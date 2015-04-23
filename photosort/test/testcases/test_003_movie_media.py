@@ -20,7 +20,7 @@ class TestMovieMedia(photosort.test.TestCase):
         self.mov1dup = self.get_data_path('media2/mov1_dup.mp4')
         self.mov1_mtime = os.path.getmtime(self.mov1)
         self.movie = media.MediaFile.build_for(self.mov1)
-        
+
     def test_hash_creation(self):
         expected_hash = "d41d8cd98f00b204e9800998ecf8427e"
         self.assertEqual(self.movie.hash(),expected_hash)
@@ -33,9 +33,11 @@ class TestMovieMedia(photosort.test.TestCase):
         mtime = time.localtime(self.mov1_mtime)
         expected_datetime = time.strftime("%Y-%m-%d %H:%M:%S", mtime)# it must come from exif data
         decimals = "%.6g" % (round(self.mov1_mtime % 1, 6))
-        ms = decimals.split('.')[1]
-        expected_datetime += '.' + ms
-
+        try:
+            ms = decimals.split('.')[1]
+            expected_datetime += '.' + ms
+        except IndexError:
+            pass
         self.assertEqual(str(self.movie.datetime()),expected_datetime)
 
     def test_equal_checking(self):
