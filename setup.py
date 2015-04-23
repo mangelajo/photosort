@@ -4,7 +4,7 @@ import setuptools
 
 setuptools.setup(
         name = 'photosort',
-        version = '2015.1',
+        version = '2015.2',
         description = 'Picture inbox simplified',
         author = 'Miguel Angel Ajo Pelayo',
         author_email = 'miguelangel@ajo.es',
