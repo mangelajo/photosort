@@ -23,7 +23,7 @@ class PhotoSort:
     def __init__(self, config_filename, log_level):
 
         self._config = config.Config(config_filename)
-        logging.basicConfig(filename=self._config.log_file(), level=log_level)
+        self._setup_logging(log_level)
         self._photodb = photodb.PhotoDB(self._config)
         self._duplicates_dir = self._config.duplicates_dir()
         self._dir_pattern = self._config.dir_pattern()
@@ -31,6 +31,14 @@ class PhotoSort:
         self._inputs = (self._config.sources()[source]['dir']
                         for source in self._config.sources().keys())
         self._file_mode = self._config.output_chmod()
+
+    def _setup_logging(self, log_level):
+        if self._config.log_file():
+            logging.basicConfig(filename=self._config.log_file(),
+                                level=log_level)
+        else:
+            logging.basicConfig(stream=sys.stderr,
+                                level=log_level)
 
     def _sync_source(self,src_dir):
         walker = walk.WalkForMedia(src_dir)
@@ -121,3 +129,6 @@ def main():
         logging.critical("Unexpected error: %s" % (sys.exc_info()[0]))
         logging.critical(traceback.format_exc())
 
+
+if __name__ == "__main__":
+        main()

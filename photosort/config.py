@@ -35,7 +35,11 @@ class Config:
         return self._data['sources']
 
     def log_file(self):
-        return self._relative_or_absolute_to_output(self._data['output']['log_file'])
+        if 'log_file' in self._data['output']:
+            return self._relative_or_absolute_to_output(
+                self._data['output']['log_file'])
+        else:
+            return None
 
     def db_file(self):
         return self._relative_or_absolute_to_output(self._data['output']['db_file'])
