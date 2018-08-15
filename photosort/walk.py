@@ -12,7 +12,7 @@ import logging
 import fcntl
 import time
 
-import media
+from photosort import media
 
 
 class WalkForMedia:

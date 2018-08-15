@@ -11,7 +11,17 @@ it will be moved to the duplicates directory
 
 ## Easy install
 
+```bash
 pip3 install photosort
+```
+
+## Alternate install method
+
+```
+git clone https://github.com/mangelajo/photosort
+cd photosort
+sudo python3 setup.py install
+```
 
 ## How to use it
 

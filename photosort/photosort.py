@@ -1,6 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
 
-
 __author__ = "Miguel Angel Ajo Pelayo"
 __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
@@ -8,15 +7,15 @@ __license__ = "GPLv3"
 
 import argparse
 import logging
-import traceback
-
+import os
 import sys
 import time
-import photodb
-import config
-import walk
-import os
-import media
+import traceback
+
+from photosort import config
+from photosort import media
+from photosort import photodb
+from photosort import walk
 
 class PhotoSort:
 
