@@ -79,7 +79,7 @@ class WalkForMedia:
             with open(filename,'r') as file:
                 fcntl.flock(file.fileno(),fcntl.LOCK_EX)
                 fcntl.flock(file.fileno(),fcntl.LOCK_UN)
-        except IOError, e:
+        except IOError as e:
                 logging.debug("%s seems to be locked or gone" % filename)
                 return True
         return False # we were able to lock/unlock, so nobody must be writing

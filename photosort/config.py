@@ -51,7 +51,7 @@ class Config:
     def dir_pattern(self):
         try:
             return self._data['output']['dir_pattern']
-        except KeyError, exc:
+        except KeyError as exc:
             if str(exc) == "'dir_pattern'":
                 return self._data['output']['pattern']
             else:
@@ -60,7 +60,7 @@ class Config:
     def file_prefix(self):
         try:
             return self._data['output']['file_prefix']
-        except KeyError, exc:
+        except KeyError as exc:
             if str(exc) == "'file_prefix'":
                 return ""
             else:

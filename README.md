@@ -11,7 +11,7 @@ it will be moved to the duplicates directory
 
 ## Easy install
 
-pip install photosort
+pip3 install photosort
 
 ## How to use it
 

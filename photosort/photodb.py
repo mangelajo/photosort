@@ -37,10 +37,10 @@ class PhotoDB:
         try:
             logging.info("----------")
             logging.info("DB Loading %s" % filename)
-            with open(filename, 'r') as f_in:
+            with open(filename, 'r', encoding='utf-8') as f_in:
                 dbreader = csv.reader(f_in, delimiter=',')
                 try:
-                    names = dbreader.next()
+                    names = next(dbreader)
                 except StopIteration:
                     logging.info("DB was empty")
                     return
@@ -70,7 +70,7 @@ class PhotoDB:
         except:
             pass
 
-        with open(self._db_file, 'w') as f_out:
+        with open(self._db_file, 'w', encoding='utf-8') as f_out:
 
             dbwriter = csv.writer(f_out, delimiter=',')
             dbwriter.writerow(['directory', 'filename', 'type', 'md5'])
