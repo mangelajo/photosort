@@ -38,7 +38,7 @@ class MediaFile:
 
         file_type = MediaFile.guess_file_type(filename)
         if file_type is 'photo':
-            import photo    # delayed import to avoid circular dependencies
+            from photosort import photo    # delayed import to avoid circular dependencies
             return photo.Photo(filename)
         else:
             return MediaFile(filename)

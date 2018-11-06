@@ -13,7 +13,7 @@ import sys
 import time
 import logging
 
-import media
+from photosort import media
 
 class Photo(media.MediaFile):
 
