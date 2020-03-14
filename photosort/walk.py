@@ -119,7 +119,7 @@ class WalkForMedia:
     def find_media(self):
 
         if not os.path.isdir(self._rootdir):
-            logging.info("%s does not exists or it's not mounted, "
+            logging.error("%s does not exists or it's not mounted, "
                          "cannot find media", self._rootdir)
             return
 
