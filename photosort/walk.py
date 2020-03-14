@@ -80,7 +80,7 @@ class WalkForMedia:
                 fcntl.flock(file.fileno(), fcntl.LOCK_EX)
                 fcntl.flock(file.fileno(), fcntl.LOCK_UN)
         except IOError as e:
-            logging.debug("%s seems to be locked or gone (%s)" % filename, e)
+            logging.debug("%s seems to be locked or gone (%s)", filename, e)
             return True
         return False  # we were able to lock/unlock, so nobody must be writing
 
@@ -89,8 +89,7 @@ class WalkForMedia:
         # that are yet incomplete from being moved around
 
         if self._file_is_locked(filename):
-            logging.debug("file %s not ready because it's locked"
-                          % filename)
+            logging.debug("file %s not ready because it's locked", filename)
             return False
 
         # skip files that were modified in the last 30 seconds
@@ -99,8 +98,8 @@ class WalkForMedia:
 
         if mod_lapse < 30:
             logging.debug("file %s not ready because modification "
-                          "lapse is %d, it's probably copying yet"
-                          % (filename, mod_lapse))
+                          "lapse is %d, it's probably copying yet",
+                          filename, mod_lapse)
             return False
 
         # skip growing or empty files
@@ -112,8 +111,7 @@ class WalkForMedia:
         #     return False
 
         if self._file_is_empty(filename):
-            logging.debug("file %s not ready because it's empty"
-                          % filename)
+            logging.debug("file %s not ready because it's empty", filename)
             return False
 
         return True

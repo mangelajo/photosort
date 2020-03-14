@@ -93,7 +93,7 @@ class MediaFile:
         except OSError:
             logging.info(
                 "Comparing to %s, file didn't exist anymore, "
-                "erased or moved?" % filename)
+                "erased or moved?", filename)
             return False
 
     def type(self):
@@ -107,30 +107,22 @@ class MediaFile:
             total_path = os.path.join(total_path, directory)
             if os.path.isdir(total_path):
                 continue
-            else:
-                os.mkdir(total_path, mode | stat.S_IXUSR)
+
+            os.mkdir(total_path, mode | stat.S_IXUSR)
 
     def rename_as(self, new_filename, file_mode=0o774):
 
         try:
             self.makedirs_f(os.path.dirname(new_filename), file_mode)
         except OSError as e:
-            logging.error("Unable to move: %s (%s)" % new_filename, e)
+            logging.error("Unable to move: %s (%s)", new_filename, e)
             return False
 
         try:
             shutil.move(self._filename, new_filename)
             os.chmod(new_filename, file_mode)
         except OSError as e:
-            logging.error("Unable to move: %s" % e)
-            return False
-
-        except IOError as e:
-            logging.error("Unable to move: %s" % e)
-            return False
-
-        except shutil.Error as e:
-            logging.error("Unable to move: %s" % e)
+            logging.error("Unable to move: %s", e)
             return False
 
         return True
@@ -159,7 +151,7 @@ class MediaFile:
         else:
             file_prefix = self.get_filename()
         new_filename = out_dir + "/" + file_prefix
-        logging.info("moving %s to %s" % (self._filename, new_filename))
+        logging.info("moving %s to %s", self._filename, new_filename)
 
         if self.rename_as(new_filename, file_mode):
             self._filename = new_filename

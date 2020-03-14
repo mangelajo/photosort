@@ -54,7 +54,7 @@ class Photo(media.MediaFile):
             try:
                 exif_datetime_str = exif_data[exif_tag]
             except KeyError:
-                logging.debug("EXIF tag not available: " + exif_tag)
+                logging.debug("EXIF tag not available: %s", exif_tag)
                 continue
             except IOError as e:
                 if str(e) == "not enough data":
@@ -66,7 +66,7 @@ class Photo(media.MediaFile):
             except ValueError:
                 return None  # time data '0000:00:00 00:00:00'
             # only reached if the datetime information properly obtained
-            logging.debug("photo date and time obtained from: " + exif_tag)
+            logging.debug("photo date and time obtained from: %s", exif_tag)
             break
 
         if exif_datetime_str == '0000:00:00 00:00:00':
@@ -86,7 +86,7 @@ class Photo(media.MediaFile):
 
     def datetime(self):
         dt = self._exif_datetime()
-        logging.debug("date and time: " + str(dt))
+        logging.debug("date and time: %s", dt)
         if dt is None:
             dt = media.MediaFile.datetime(self)
 

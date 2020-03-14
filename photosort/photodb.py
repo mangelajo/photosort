@@ -36,7 +36,7 @@ class PhotoDB:
             self._hashes = {}
         try:
             logging.info("----------")
-            logging.info("DB Loading %s" % filename)
+            logging.info("DB Loading %s", filename)
             with open(filename, 'r', encoding='utf-8') as f_in:
                 dbreader = csv.reader(f_in, delimiter=',')
                 try:
@@ -49,14 +49,14 @@ class PhotoDB:
                     self._hashes[hash] = {'dir': file_dir,
                                           'name': file_name,
                                           'type': file_type}
-            logging.info("DB Load finished, %d entries" % len(self._hashes))
+            logging.info("DB Load finished, %d entries", len(self._hashes))
         except IOError as e:
             if e.errno == 2:
                 logging.debug(
-                    "DB file %s doesn't exist yet, it will get created" %
+                    "DB file %s doesn't exist yet, it will get created",
                     self._db_file)
             else:
-                logging.error("Error opening DB file %s" % self._db_file)
+                logging.error("Error opening DB file %s", self._db_file)
                 raise
 
     def write(self):
@@ -88,8 +88,8 @@ class PhotoDB:
         try:
             hash = media_file.hash()
         except IOError as e:
-            logging.error("IOError %s trying to hash %s" %
-                          (e, media_file.get_path()))
+            logging.error("IOError %s trying to hash %s", e,
+                          media_file.get_path())
             return False
 
         file_type = media_file.type()
@@ -100,10 +100,8 @@ class PhotoDB:
                               'name': file_name,
                               'type': file_type}
 
-        logging.info("indexed %s/%s %s %s" % (file_dir,
-                                              file_name,
-                                              file_type,
-                                              hash))
+        logging.info("indexed %s/%s %s %s", file_dir, file_name,
+                     file_type, hash)
         return True
 
     def is_duplicate(self, media_file):
@@ -124,8 +122,8 @@ class PhotoDB:
                                  "handled as dupe: %s %s",
                                  media_file.get_path(), filename2)
 
-            logging.info("%s was detected as duplicate with %s" %
-                         (media_file.get_path(), filename2))
+            logging.info("%s was detected as duplicate with %s",
+                         media_file.get_path(), filename2)
 
             return True
         return False

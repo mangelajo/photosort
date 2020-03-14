@@ -8,7 +8,6 @@ __license__ = "GPLv3"
 
 class Error(Exception):
     """Base class for exceptions in this module."""
-    pass
 
 
 class DirError(Error):
