@@ -5,15 +5,15 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
+import datetime
 import filecmp
 import hashlib
 import logging
-import os.path
 import os
+import os.path
+import shutil
 import stat
 import sys
-import datetime
-import shutil
 
 
 class MediaFile:
@@ -27,7 +27,8 @@ class MediaFile:
     def guess_file_type(filename):
 
         extension = filename.lower().split('.')[-1]
-        if extension in ('jpeg', 'jpg', 'cr2', 'raw', 'png', 'arw', 'thm', 'orf'):
+        if extension in (
+                'jpeg', 'jpg', 'cr2', 'raw', 'png', 'arw', 'thm', 'orf'):
             return 'photo'
         if extension in ('mpeg', 'mpg', 'mov', 'mp4', 'avi'):
             return 'movie'
@@ -37,8 +38,9 @@ class MediaFile:
     def build_for(filename):
 
         file_type = MediaFile.guess_file_type(filename)
-        if file_type is 'photo':
-            from photosort import photo    # delayed import to avoid circular dependencies
+        if file_type == 'photo':
+            from photosort import \
+                photo  # delayed import to avoid circular dependencies
             return photo.Photo(filename)
         else:
             return MediaFile(filename)
@@ -88,10 +90,10 @@ class MediaFile:
         try:
             result = filecmp.cmp(self._filename, filename, shallow=True)
             return result
-        except OSError as e:
-
+        except OSError:
             logging.info(
-                "Comparing to %s, file didn't exist anymore, erased or moved?" % filename)
+                "Comparing to %s, file didn't exist anymore, "
+                "erased or moved?" % filename)
             return False
 
     def type(self):
@@ -112,12 +114,12 @@ class MediaFile:
 
         try:
             self.makedirs_f(os.path.dirname(new_filename), file_mode)
-        except:
-            logging.error("Unable to move: %s" % new_filename)
+        except OSError as e:
+            logging.error("Unable to move: %s (%s)" % new_filename, e)
             return False
 
         try:
-            result = shutil.move(self._filename, new_filename)
+            shutil.move(self._filename, new_filename)
             os.chmod(new_filename, file_mode)
         except OSError as e:
             logging.error("Unable to move: %s" % e)
@@ -131,9 +133,6 @@ class MediaFile:
             logging.error("Unable to move: %s" % e)
             return False
 
-        except:
-            raise
-
         return True
 
     def calculate_datetime(self, format):
@@ -143,17 +142,18 @@ class MediaFile:
 
         return format % data
 
-    def move_to_directory_with_date(self, directory, dir_format, file_format='', file_mode=0o774):
+    def move_to_directory_with_date(self, directory, dir_format,
+                                    file_format='', file_mode=0o774):
 
         out_dir = directory + "/" + self.calculate_datetime(dir_format)
 
         try:
             os.mkdir(out_dir)
             os.chmod(out_dir, file_mode | stat.S_IXUSR)
-        except OSError as e:
+        except OSError:
             pass  # it already exists
 
-        if file_format:
+        if file_format != "":
             file_prefix = self.calculate_datetime(
                 file_format) + self.get_filename()
         else:

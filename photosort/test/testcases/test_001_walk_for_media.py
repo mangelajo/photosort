@@ -5,11 +5,11 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
-import photosort.test
+import photosort.test as test
 from photosort import walk
 
 
-class TestWalkForMedia(photosort.test.TestCase):
+class TestWalkForMedia(test.TestCase):
 
     def setUp(self):
         self.media1 = self.get_data_path('media1')
@@ -24,4 +24,4 @@ class TestWalkForMedia(photosort.test.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    test.main()

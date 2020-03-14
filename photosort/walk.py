@@ -6,10 +6,9 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
-import datetime
-import os
-import logging
 import fcntl
+import logging
+import os
 import time
 
 from photosort import media
@@ -81,7 +80,7 @@ class WalkForMedia:
                 fcntl.flock(file.fileno(), fcntl.LOCK_EX)
                 fcntl.flock(file.fileno(), fcntl.LOCK_UN)
         except IOError as e:
-            logging.debug("%s seems to be locked or gone" % filename)
+            logging.debug("%s seems to be locked or gone (%s)" % filename, e)
             return True
         return False  # we were able to lock/unlock, so nobody must be writing
 
@@ -107,7 +106,7 @@ class WalkForMedia:
         # skip growing or empty files
 
         # skip this check, as it's a major slowdown, and lapse seems to work
-        #if self._file_is_growing(filename):
+        # if self._file_is_growing(filename):
         #     logging.debug("file %s not ready because it's growing"
         #                  % filename )
         #     return False
@@ -122,26 +121,24 @@ class WalkForMedia:
     def find_media(self):
 
         if not os.path.isdir(self._rootdir):
-            logging.info(self._rootdir +
-                         " does not exists or it's not mounted, "
-                         "cannot find media")
+            logging.info("%s does not exists or it's not mounted, "
+                         "cannot find media", self._rootdir)
             return
 
         if os.path.split(self._rootdir)[-1].startswith('.'):
-            logging.info(self._rootdir +
-                         " is a hidden directory => ignoring")
+            logging.info("%s is a hidden directory => ignoring", self._rootdir)
             return
 
         if self._rootdir in self._ignores:
-            logging.info(self._rootdir +
-                         " in the list to be ignored => ignoring")
+            logging.info("%s in the list to be ignored => ignoring",
+                         self._rootdir)
             return
 
         for root, subFolders, files in os.walk(self._rootdir):
 
-            subFolders[:] = [sf for sf in subFolders
-                    if not sf.startswith('.')
-                    and not sf in self._ignores]
+            subFolders[:] = [
+                sf for sf in subFolders
+                if not sf.startswith('.') and sf not in self._ignores]
 
             for file in files:
 

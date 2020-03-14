@@ -5,7 +5,6 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
-
 import yaml
 
 
@@ -43,7 +42,8 @@ class Config:
             return None
 
     def db_file(self):
-        return self._relative_or_absolute_to_output(self._data['output']['db_file'])
+        return self._relative_or_absolute_to_output(
+            self._data['output']['db_file'])
 
     def duplicates_dir(self):
         return self._relative_or_absolute_to_output(

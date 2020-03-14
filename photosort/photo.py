@@ -6,13 +6,12 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
+import datetime
+import logging
+import sys
+
 from PIL import Image
 from PIL.ExifTags import TAGS
-import datetime
-import sys
-import time
-import logging
-
 from photosort import media
 
 
@@ -50,7 +49,8 @@ class Photo(media.MediaFile):
         exif_datetime_str = ""
 
         exif_data = self._exif_data()
-        for exif_tag in ['DateTimeOriginal', 'Image DateTime', 'DateTimeDigitized']:
+        for exif_tag in ['DateTimeOriginal', 'Image DateTime',
+                         'DateTimeDigitized']:
             try:
                 exif_datetime_str = exif_data[exif_tag]
             except KeyError:
@@ -75,7 +75,7 @@ class Photo(media.MediaFile):
         if exif_datetime_str:
             try:
                 return datetime.datetime.strptime(str(exif_datetime_str),
-                                              '%Y:%m:%d %H:%M:%S')
+                                                  '%Y:%m:%d %H:%M:%S')
             except UnicodeEncodeError as e:
                 if str(e).startswith("'ascii' codec can't encode character"):
                     return None
@@ -95,7 +95,8 @@ class Photo(media.MediaFile):
     def hash(self):
         """
         Builds an hexadecimal hash for a picture, extended with the
-        EXIF date as a string, to prevent as much as possible from md5 collisions
+        EXIF date as a string, to prevent as much as possible from md5
+        collisions
         """
         if self._hash is not None:
             return self._hash

@@ -55,16 +55,18 @@ class PhotoSort:
                 duplicates_path = os.path.join(self._duplicates_dir, file)
 
                 logging.info("moving to duplicates: %s" %
-                     duplicates_path)
+                             duplicates_path)
 
                 media_file.rename_as(duplicates_path, self._file_mode)
             else:
-                if media_file.move_to_directory_with_date(self._photodb._output_dir,
-                                                     self._dir_pattern,
-                                                     self._file_prefix,
-                                                     self._file_mode):
+                if media_file.move_to_directory_with_date(
+                        self._photodb._output_dir,
+                        self._dir_pattern,
+                        self._file_prefix,
+                        self._file_mode):
                     self._photodb.add_to_db(
-                        media_file.get_directory(), media_file.get_filename(), media_file)
+                        media_file.get_directory(), media_file.get_filename(),
+                        media_file)
         self._photodb.write()
 
     def rebuild_db(self):
@@ -80,7 +82,7 @@ class PhotoSort:
                 file_path = os.path.join(file_dir, file_name)
                 media_file = media.MediaFile.build_for(file_path)
                 self._photodb.add_to_db(file_dir, file_name, media_file)
-            except:
+            except Exception:
                 logging.critical("Unexpected error: %s" % (sys.exc_info()[0]))
         self._photodb.write()
 
@@ -132,7 +134,7 @@ def main():
             photo_sort.monitor()
         else:
             print("Unknown operation: %s" % ns.op)
-    except:
+    except Exception:
         logging.critical("Unexpected error: %s" % (sys.exc_info()[0]))
         logging.critical(traceback.format_exc())
 

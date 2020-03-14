@@ -5,15 +5,16 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
-import photosort.test
-from photosort import media
-import shutil
-import tempfile
 import os
+import shutil
 import stat
+import tempfile
+
+import photosort.test as test
+from photosort import media
 
 
-class TestPhotoMedia(photosort.test.TestCase):
+class TestPhotoMedia(test.TestCase):
 
     def setUp(self):
         self.img1 = self.get_data_path('media1/img1.jpg')
@@ -21,7 +22,8 @@ class TestPhotoMedia(photosort.test.TestCase):
         self.photo = media.MediaFile.build_for(self.img1)
 
     def test_hash_creation(self):
-        expected_hash = "a35de42abad366d0f6232a4abd0404c8 - 2013-08-24 13:05:52"
+        expected_hash = "a35de42abad366d0f6232a4abd0404c8 " \
+            "- 2013-08-24 13:05:52"
         self.assertEqual(self.photo.hash(), expected_hash)
 
         # check for hasher non being re-started
@@ -29,7 +31,7 @@ class TestPhotoMedia(photosort.test.TestCase):
         self.assertEqual(same_photo.hash(), expected_hash)
 
     def test_datetime(self):
-        expected_datetime = "2013-08-24 13:05:52"  # it must come from exif data
+        expected_datetime = "2013-08-24 13:05:52"  # it must come from EXIF
 
         self.assertEqual(str(self.photo.datetime()), expected_datetime)
 
@@ -64,7 +66,8 @@ class TestPhotoMedia(photosort.test.TestCase):
         tmpdir = tempfile.gettempdir()
         tmpfile = tmpdir + '/' + self.photo.get_filename()
         dir_fmt = '%(year)d/%(year)04d_%(month)02d_%(day)02d'
-        file_fmt = '%(year)04d%(month)02d%(day)02d%(hour)02d%(minute)02d%(second)02d_'
+        file_fmt = "%(year)04d%(month)02d%(day)02d%(hour)02d" \
+            "%(minute)02d%(second)02d_"
 
         shutil.copy(self.photo.get_path(), tmpfile)
         photo_t = media.MediaFile.build_for(tmpfile)
@@ -86,4 +89,4 @@ class TestPhotoMedia(photosort.test.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    test.main()

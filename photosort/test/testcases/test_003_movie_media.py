@@ -5,16 +5,17 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
-import photosort.test
-from photosort import media
-import shutil
-import tempfile
 import os
+import shutil
 import stat
+import tempfile
 import time
 
+import photosort.test as test
+from photosort import media
 
-class TestMovieMedia(photosort.test.TestCase):
+
+class TestMovieMedia(test.TestCase):
 
     def setUp(self):
         self.mov1 = self.get_data_path('media2/mov1.mp4')
@@ -80,7 +81,8 @@ class TestMovieMedia(photosort.test.TestCase):
         tmpdir = tempfile.gettempdir()
         tmpfile = tmpdir + '/' + self.movie.get_filename()
         dir_fmt = '%(year)d/%(year)04d_%(month)02d_%(day)02d'
-        file_fmt = '%(year)04d%(month)02d%(day)02d%(hour)02d%(minute)02d%(second)02d_'
+        file_fmt = "%(year)04d%(month)02d%(day)02d%(hour)02" \
+            "d%(minute)02d%(second)02d_"
 
         shutil.copy(self.movie.get_path(), tmpfile)
         mov_mtime = os.path.getmtime(tmpfile)
@@ -115,9 +117,10 @@ class TestMovieMedia(photosort.test.TestCase):
         movie_t.move_to_directory_with_date(tmpdir, dir_fmt, file_fmt)
 
         expected_filename = os.path.join(
-            tmpdir, year, year + '_' + month + '_' + day, year + month + day + hour + minute + second + '_mov1.mp4')
+            tmpdir, year, year + '_' + month + '_' + day,
+            year + month + day + hour + minute + second + '_mov1.mp4')
         self.assertTrue(self.movie.is_equal_to(expected_filename))
 
 
 if __name__ == '__main__':
-    unittest.main()
+    test.main()

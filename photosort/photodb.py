@@ -1,7 +1,6 @@
 # -*- mode: python; coding: utf-8 -*-
 from __future__ import print_function
 
-
 __author__ = "Miguel Angel Ajo Pelayo"
 __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
@@ -41,7 +40,7 @@ class PhotoDB:
             with open(filename, 'r', encoding='utf-8') as f_in:
                 dbreader = csv.reader(f_in, delimiter=',')
                 try:
-                    names = next(dbreader)
+                    _ = next(dbreader)  # names
                 except StopIteration:
                     logging.info("DB was empty")
                     return
@@ -53,8 +52,9 @@ class PhotoDB:
             logging.info("DB Load finished, %d entries" % len(self._hashes))
         except IOError as e:
             if e.errno == 2:
-                logging.debug("DB file %s doesn't exist " % self._db_file +
-                    "yet, it will get created")
+                logging.debug(
+                    "DB file %s doesn't exist yet, it will get created" %
+                    self._db_file)
             else:
                 logging.error("Error opening DB file %s" % self._db_file)
                 raise
@@ -63,12 +63,12 @@ class PhotoDB:
 
         try:
             os.remove(self._db_file + ".bak")
-        except:
+        except os.OSError:
             pass
 
         try:
             os.rename(self._db_file, self._db_file + ".bak", self._file_mode)
-        except:
+        except os.OSError:
             pass
 
         with open(self._db_file, 'w', encoding='utf-8') as f_out:
@@ -77,7 +77,6 @@ class PhotoDB:
             dbwriter.writerow(['directory', 'filename', 'type', 'md5'])
 
             for hash in self._hashes.keys():
-
                 file_dir, file_name, file_type = (
                     self._hashes[hash]['dir'],
                     self._hashes[hash]['name'],
@@ -122,7 +121,8 @@ class PhotoDB:
 
             if not media_file.is_equal_to(filename2):
                 logging.critical("MD5 hash collision for two different files,"
-                                 "handled as dupe: %s %s", media_file.get_path(), filename2)
+                                 "handled as dupe: %s %s",
+                                 media_file.get_path(), filename2)
 
             logging.info("%s was detected as duplicate with %s" %
                          (media_file.get_path(), filename2))

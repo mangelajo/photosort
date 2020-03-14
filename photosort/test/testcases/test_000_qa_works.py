@@ -5,10 +5,10 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
-import photosort.test
+import photosort.test as test
 
 
-class TestQAWorks(photosort.test.TestCase):
+class TestQAWorks(test.TestCase):
 
     def setUp(self):
         self.dummy = None
@@ -21,4 +21,4 @@ class TestQAWorks(photosort.test.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    test.main()
