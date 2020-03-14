@@ -14,6 +14,7 @@ if platform.python_version() < '2.7':
 else:
     import unittest
 
+
 class TestCase(unittest.TestCase):
-    def get_data_path(self,file_path):
-        return os.path.join(os.path.dirname(__file__),'data',file_path)
+    def get_data_path(self, file_path):
+        return os.path.join(os.path.dirname(__file__), 'data', file_path)

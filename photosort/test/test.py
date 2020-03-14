@@ -16,10 +16,10 @@ else:
 
 
 def main():
-    tests_dir = os.path.join(os.path.dirname(__file__),'testcases')
-    testsuite = unittest.TestLoader().discover(tests_dir,pattern="*.py")
+    tests_dir = os.path.join(os.path.dirname(__file__), 'testcases')
+    testsuite = unittest.TestLoader().discover(tests_dir, pattern="*.py")
     unittest.TextTestRunner(verbosity=100).run(testsuite)
+
 
 if __name__ == '__main__':
     main()
-

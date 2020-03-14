@@ -13,6 +13,7 @@ import os
 import stat
 import time
 
+
 class TestMovieMedia(photosort.test.TestCase):
 
     def setUp(self):
@@ -23,22 +24,23 @@ class TestMovieMedia(photosort.test.TestCase):
 
     def test_hash_creation(self):
         expected_hash = "d41d8cd98f00b204e9800998ecf8427e"
-        self.assertEqual(self.movie.hash(),expected_hash)
+        self.assertEqual(self.movie.hash(), expected_hash)
 
         # check for hasher non being re-started
         same_movie = media.MediaFile.build_for(self.mov1)
-        self.assertEqual(same_movie.hash(),expected_hash)
+        self.assertEqual(same_movie.hash(), expected_hash)
 
     def test_datetime(self):
         mtime = time.localtime(self.mov1_mtime)
-        expected_datetime = time.strftime("%Y-%m-%d %H:%M:%S", mtime)# it must come from exif data
+        expected_datetime = time.strftime(
+            "%Y-%m-%d %H:%M:%S", mtime)  # it must come from exif data
         decimals = "%.6g" % (round(self.mov1_mtime % 1, 6))
         try:
             ms = decimals.split('.')[1]
             expected_datetime += '.' + ms
         except IndexError:
             pass
-        self.assertEqual(str(self.movie.datetime()),expected_datetime)
+        self.assertEqual(str(self.movie.datetime()), expected_datetime)
 
     def test_equal_checking(self):
         self.assertTrue(self.movie.is_equal_to(self.mov1dup))
@@ -51,11 +53,11 @@ class TestMovieMedia(photosort.test.TestCase):
 
         dir_fmt = '%(year)d/%(year)04d_%(month)02d_%(day)02d'
         dir_str = self.movie.calculate_datetime(dir_fmt)
-        expected_dir = os.path.join(year, year+'_'+month+'_'+day)
-        self.assertEqual(dir_str,expected_dir)
+        expected_dir = os.path.join(year, year + '_' + month + '_' + day)
+        self.assertEqual(dir_str, expected_dir)
 
     def test_get_filename(self):
-        self.assertEqual(self.movie.get_filename(),'mov1.mp4')
+        self.assertEqual(self.movie.get_filename(), 'mov1.mp4')
 
     def test_rename(self):
 
@@ -68,11 +70,11 @@ class TestMovieMedia(photosort.test.TestCase):
 
         movie_t = media.MediaFile.build_for(tmpfile)
 
-        movie_t.rename_as(tmpfile_renamed,tmpfile_mode)
+        movie_t.rename_as(tmpfile_renamed, tmpfile_mode)
         self.assertTrue(self.movie.is_equal_to(tmpfile_renamed))
 
         file_mode = os.stat(tmpfile_renamed)[stat.ST_MODE] & 0o777
-        self.assertEqual(file_mode,tmpfile_mode)
+        self.assertEqual(file_mode, tmpfile_mode)
 
     def test_move_to_directory(self):
         tmpdir = tempfile.gettempdir()
@@ -91,10 +93,11 @@ class TestMovieMedia(photosort.test.TestCase):
         second = "%02d" % mtime[5]
         movie_t = media.MediaFile.build_for(tmpfile)
 
-        shutil.rmtree(tmpdir+'/'+year,ignore_errors=True)
-        movie_t.move_to_directory_with_date(tmpdir,dir_fmt)
+        shutil.rmtree(tmpdir + '/' + year, ignore_errors=True)
+        movie_t.move_to_directory_with_date(tmpdir, dir_fmt)
 
-        expected_filename = os.path.join(tmpdir, year, year+'_'+month+'_'+day, 'mov1.mp4')
+        expected_filename = os.path.join(
+            tmpdir, year, year + '_' + month + '_' + day, 'mov1.mp4')
         self.assertTrue(self.movie.is_equal_to(expected_filename))
 
         shutil.copy(self.movie.get_path(), tmpfile)
@@ -108,12 +111,13 @@ class TestMovieMedia(photosort.test.TestCase):
         second = "%02d" % mtime[5]
         movie_t = media.MediaFile.build_for(tmpfile)
 
-        shutil.rmtree(tmpdir+'/'+year,ignore_errors=True)
-        movie_t.move_to_directory_with_date(tmpdir,dir_fmt,file_fmt)
+        shutil.rmtree(tmpdir + '/' + year, ignore_errors=True)
+        movie_t.move_to_directory_with_date(tmpdir, dir_fmt, file_fmt)
 
-        expected_filename = os.path.join(tmpdir, year, year+'_'+month+'_'+day, year+month+day+hour+minute+second+'_mov1.mp4')
+        expected_filename = os.path.join(
+            tmpdir, year, year + '_' + month + '_' + day, year + month + day + hour + minute + second + '_mov1.mp4')
         self.assertTrue(self.movie.is_equal_to(expected_filename))
+
 
 if __name__ == '__main__':
     unittest.main()
-   

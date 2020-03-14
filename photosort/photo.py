@@ -15,6 +15,7 @@ import logging
 
 from photosort import media
 
+
 class Photo(media.MediaFile):
 
     def __init__(self, filename):
@@ -37,7 +38,6 @@ class Photo(media.MediaFile):
             info = image._getexif()
         except (AttributeError, IndexError):
             return {}
-
 
         if info:
             for tag, value in info.items():

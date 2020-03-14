@@ -19,35 +19,36 @@ class WalkForMedia:
     """
         A simple class to walk for JPEGs over a root dir
     """
+
     def __init__(self, rootdir, ignores=[], extensions=[]):
         self._rootdir = rootdir
         self._ignores = ignores
         self._extensions = extensions
         self._fs_time_skew = self._fs_timeskew_to(rootdir)
 
-    def _fs_timeskew_to(self,rootdir):
+    def _fs_timeskew_to(self, rootdir):
         """
         discover the remote filesystem time skew with local datetime
         this could be handled by ntp syncing all nodes, but we
         can't have a guarantee on this
         """
-        f_name = os.path.join(rootdir,".timesync")
-        with open(f_name,'w') as f:
+        f_name = os.path.join(rootdir, ".timesync")
+        with open(f_name, 'w') as f:
             f.write("touch!")
 
         ct1 = os.path.getmtime(f_name)
         ct2 = os.path.getctime(f_name)
 
-        os.remove(f_name) # cleanup the file
+        os.remove(f_name)  # cleanup the file
 
         # it can differ from windows to UN*X
-        ct =max(ct1,ct2)
+        ct = max(ct1, ct2)
 
         now = time.mktime(time.gmtime())
 
-        return ct-now # remote-local
+        return ct - now  # remote-local
 
-    def _modification_lapse(self,filename):
+    def _modification_lapse(self, filename):
         """
         return the lapse from last file modification (in seconds)
         """
@@ -55,52 +56,52 @@ class WalkForMedia:
         ct2 = os.path.getctime(filename)
 
         # it can differ from windows to UN*X
-        ct = max(ct1,ct2)
+        ct = max(ct1, ct2)
 
         now = time.mktime(time.gmtime())
 
-        return now-ct + self._fs_time_skew
+        return now - ct + self._fs_time_skew
 
-    def _file_is_growing(self,filename):
+    def _file_is_growing(self, filename):
         size1 = os.path.getsize(filename)
         time.sleep(2)
         size2 = os.path.getsize(filename)
 
-        if size2>size1:
-            logging.debug("%s size1<2 = %d<%d",filename,size1,size2)
+        if size2 > size1:
+            logging.debug("%s size1<2 = %d<%d", filename, size1, size2)
 
-        return size2>size1
+        return size2 > size1
 
-    def _file_is_empty(self,filename):
+    def _file_is_empty(self, filename):
         return os.path.getsize(filename) == 0
 
-    def _file_is_locked(self,filename):
+    def _file_is_locked(self, filename):
         try:
-            with open(filename,'r') as file:
-                fcntl.flock(file.fileno(),fcntl.LOCK_EX)
-                fcntl.flock(file.fileno(),fcntl.LOCK_UN)
+            with open(filename, 'r') as file:
+                fcntl.flock(file.fileno(), fcntl.LOCK_EX)
+                fcntl.flock(file.fileno(), fcntl.LOCK_UN)
         except IOError as e:
-                logging.debug("%s seems to be locked or gone" % filename)
-                return True
-        return False # we were able to lock/unlock, so nobody must be writing
+            logging.debug("%s seems to be locked or gone" % filename)
+            return True
+        return False  # we were able to lock/unlock, so nobody must be writing
 
-    def _file_is_ready(self,filename):
+    def _file_is_ready(self, filename):
         # we have a bunch of extra checks to avoid files
         # that are yet incomplete from being moved around
 
         if self._file_is_locked(filename):
             logging.debug("file %s not ready because it's locked"
-                          % filename )
+                          % filename)
             return False
 
         # skip files that were modified in the last 30 seconds
 
         mod_lapse = self._modification_lapse(filename)
 
-        if mod_lapse<30:
+        if mod_lapse < 30:
             logging.debug("file %s not ready because modification "
                           "lapse is %d, it's probably copying yet"
-                          % (filename,mod_lapse) )
+                          % (filename, mod_lapse))
             return False
 
         # skip growing or empty files
@@ -113,9 +114,8 @@ class WalkForMedia:
 
         if self._file_is_empty(filename):
             logging.debug("file %s not ready because it's empty"
-                          % filename )
+                          % filename)
             return False
-
 
         return True
 
@@ -140,7 +140,7 @@ class WalkForMedia:
         for root, subFolders, files in os.walk(self._rootdir):
 
             subFolders[:] = [sf for sf in subFolders
-                    if not sf.startswith('.') 
+                    if not sf.startswith('.')
                     and not sf in self._ignores]
 
             for file in files:
@@ -158,4 +158,4 @@ class WalkForMedia:
 
                 if file_type != 'unknown':
                     if self._file_is_ready(file_path):
-                       yield [root, file]
+                        yield [root, file]

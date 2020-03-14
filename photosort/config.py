@@ -13,6 +13,7 @@ class Config:
     """
     YAML configuration reading class
     """
+
     def __init__(self, filename='/etc/photosort.yml'):
         with open(filename, 'r') as f_in:
             self._data = yaml.safe_load(f_in)
@@ -29,7 +30,7 @@ class Config:
         if filename.startswith('/'):
             return filename
         else:
-            return self.output_dir()+"/"+filename
+            return self.output_dir() + "/" + filename
 
     def sources(self):
         return self._data['sources']
@@ -67,5 +68,4 @@ class Config:
                 raise
 
     def output_chmod(self):
-        return int(self._data['output']['chmod'],8) # octal conversion
-
+        return int(self._data['output']['chmod'], 8)  # octal conversion

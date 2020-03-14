@@ -11,6 +11,7 @@ import csv
 import logging
 import os.path
 
+
 class PhotoDB:
     def __init__(self, config):
 
@@ -47,12 +48,12 @@ class PhotoDB:
 
                 for file_dir, file_name, file_type, hash in dbreader:
                     self._hashes[hash] = {'dir': file_dir,
-                                              'name': file_name,
-                                              'type': file_type}
+                                          'name': file_name,
+                                          'type': file_type}
             logging.info("DB Load finished, %d entries" % len(self._hashes))
         except IOError as e:
-            if e.errno==2:
-                logging.debug("DB file %s doesn't exist " % self._db_file + \
+            if e.errno == 2:
+                logging.debug("DB file %s doesn't exist " % self._db_file +
                     "yet, it will get created")
             else:
                 logging.error("Error opening DB file %s" % self._db_file)
@@ -61,12 +62,12 @@ class PhotoDB:
     def write(self):
 
         try:
-            os.remove(self._db_file+".bak")
+            os.remove(self._db_file + ".bak")
         except:
             pass
 
         try:
-            os.rename(self._db_file, self._db_file+".bak",self._file_mode)
+            os.rename(self._db_file, self._db_file + ".bak", self._file_mode)
         except:
             pass
 
@@ -89,7 +90,7 @@ class PhotoDB:
             hash = media_file.hash()
         except IOError as e:
             logging.error("IOError %s trying to hash %s" %
-                          (e,media_file.get_path()))
+                          (e, media_file.get_path()))
             return False
 
         file_type = media_file.type()
@@ -116,13 +117,15 @@ class PhotoDB:
         if hash in self._hashes:
 
             filename_data = self._hashes[hash]
-            filename2 = self._output_dir + "/" + filename_data['dir']+'/'+filename_data['name']
+            filename2 = self._output_dir + "/" + \
+                filename_data['dir'] + '/' + filename_data['name']
 
             if not media_file.is_equal_to(filename2):
                 logging.critical("MD5 hash collision for two different files,"
                                  "handled as dupe: %s %s", media_file.get_path(), filename2)
 
-            logging.info("%s was detected as duplicate with %s" % (media_file.get_path(), filename2) )
+            logging.info("%s was detected as duplicate with %s" %
+                         (media_file.get_path(), filename2))
 
             return True
         return False

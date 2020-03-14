@@ -73,23 +73,25 @@ class MediaFile:
         ct1 = os.path.getmtime(self._filename)
         ct2 = os.path.getctime(self._filename)
 
-        ct = min(ct1,ct2) # it can differ from windows to UN*X
+        ct = min(ct1, ct2)  # it can differ from windows to UN*X
 
         return datetime.datetime.fromtimestamp(ct)
 
     def __str__(self):
 
-        s = "[%s file hash=%s date=%s]" % (self._file_type, self.hash(), self.datetime())
+        s = "[%s file hash=%s date=%s]" % (
+            self._file_type, self.hash(), self.datetime())
         return s
 
-    def is_equal_to(self,filename):
+    def is_equal_to(self, filename):
 
         try:
             result = filecmp.cmp(self._filename, filename, shallow=True)
             return result
         except OSError as e:
 
-            logging.info("Comparing to %s, file didn't exist anymore, erased or moved?" % filename )
+            logging.info(
+                "Comparing to %s, file didn't exist anymore, erased or moved?" % filename)
             return False
 
     def type(self):
@@ -100,24 +102,23 @@ class MediaFile:
 
         total_path = ''
         for directory in paths:
-            total_path = os.path.join(total_path,directory)
+            total_path = os.path.join(total_path, directory)
             if os.path.isdir(total_path):
                 continue
             else:
-                os.mkdir(total_path,mode | stat.S_IXUSR)
+                os.mkdir(total_path, mode | stat.S_IXUSR)
 
-
-    def rename_as(self,new_filename,file_mode = 0o774):
+    def rename_as(self, new_filename, file_mode=0o774):
 
         try:
-            self.makedirs_f(os.path.dirname(new_filename),file_mode)
+            self.makedirs_f(os.path.dirname(new_filename), file_mode)
         except:
             logging.error("Unable to move: %s" % new_filename)
             return False
 
         try:
             result = shutil.move(self._filename, new_filename)
-            os.chmod(new_filename,file_mode)
+            os.chmod(new_filename, file_mode)
         except OSError as e:
             logging.error("Unable to move: %s" % e)
             return False
@@ -135,25 +136,26 @@ class MediaFile:
 
         return True
 
-    def calculate_datetime(self,format):
+    def calculate_datetime(self, format):
         dt = self.datetime()
         data = {'year': dt.year, 'month': dt.month, 'day': dt.day,
-                'hour': dt.hour, 'minute': dt.minute, 'second': dt.second }
+                'hour': dt.hour, 'minute': dt.minute, 'second': dt.second}
 
         return format % data
 
-    def move_to_directory_with_date(self,directory,dir_format,file_format='',file_mode=0o774):
+    def move_to_directory_with_date(self, directory, dir_format, file_format='', file_mode=0o774):
 
         out_dir = directory + "/" + self.calculate_datetime(dir_format)
 
         try:
             os.mkdir(out_dir)
-            os.chmod(out_dir,file_mode | stat.S_IXUSR)
+            os.chmod(out_dir, file_mode | stat.S_IXUSR)
         except OSError as e:
-            pass # it already exists
+            pass  # it already exists
 
         if file_format:
-            file_prefix = self.calculate_datetime(file_format) + self.get_filename()
+            file_prefix = self.calculate_datetime(
+                file_format) + self.get_filename()
         else:
             file_prefix = self.get_filename()
         new_filename = out_dir + "/" + file_prefix
@@ -165,7 +167,7 @@ class MediaFile:
         else:
             return False
 
+
 if __name__ == "__main__":
     file = MediaFile.build_for(sys.argv[1])
     print(file)
-

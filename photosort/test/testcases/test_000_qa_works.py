@@ -7,18 +7,18 @@ __license__ = "GPLv3"
 
 import photosort.test
 
+
 class TestQAWorks(photosort.test.TestCase):
 
     def setUp(self):
         self.dummy = None
 
-    def test_assert_true( self ):
-        self.assertTrue( True )
+    def test_assert_true(self):
+        self.assertTrue(True)
 
-    def test_assert_equal( self ):
-        self.assertEqual(2, 1+1)
+    def test_assert_equal(self):
+        self.assertEqual(2, 1 + 1)
 
 
 if __name__ == '__main__':
     unittest.main()
-   

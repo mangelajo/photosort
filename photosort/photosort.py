@@ -17,6 +17,7 @@ from photosort import media
 from photosort import photodb
 from photosort import walk
 
+
 class PhotoSort:
 
     def __init__(self, config_filename, log_level):
@@ -39,30 +40,31 @@ class PhotoSort:
             logging.basicConfig(stream=sys.stderr,
                                 level=log_level)
 
-    def _sync_source(self,src_dir):
+    def _sync_source(self, src_dir):
         try:
             walker = walk.WalkForMedia(src_dir)
         except IOError:
             logging.error("Unable to walk dir %s", src_dir)
             return
 
-        for file_dir,file_name in walker.find_media():
-            file_path = os.path.join(file_dir,file_name)
+        for file_dir, file_name in walker.find_media():
+            file_path = os.path.join(file_dir, file_name)
             media_file = media.MediaFile.build_for(file_path)
             if self._photodb.is_duplicate(media_file):
                 file = media_file.get_filename()
-                duplicates_path = os.path.join(self._duplicates_dir,file)
+                duplicates_path = os.path.join(self._duplicates_dir, file)
 
                 logging.info("moving to duplicates: %s" %
                      duplicates_path)
 
-                media_file.rename_as(duplicates_path,self._file_mode)
+                media_file.rename_as(duplicates_path, self._file_mode)
             else:
                 if media_file.move_to_directory_with_date(self._photodb._output_dir,
                                                      self._dir_pattern,
                                                      self._file_prefix,
                                                      self._file_mode):
-                    self._photodb.add_to_db(media_file.get_directory(), media_file.get_filename(), media_file)
+                    self._photodb.add_to_db(
+                        media_file.get_directory(), media_file.get_filename(), media_file)
         self._photodb.write()
 
     def rebuild_db(self):
@@ -71,8 +73,9 @@ class PhotoSort:
         target directory to be able to detect duplicates and avoid
         overwritting
         """
-        walker = walk.WalkForMedia(self._config.output_dir(), ignores=self._inputs)
-        for file_dir,file_name in walker.find_media():
+        walker = walk.WalkForMedia(
+            self._config.output_dir(), ignores=self._inputs)
+        for file_dir, file_name in walker.find_media():
             try:
                 file_path = os.path.join(file_dir, file_name)
                 media_file = media.MediaFile.build_for(file_path)
@@ -85,7 +88,7 @@ class PhotoSort:
         """
         ensures that the media files of the input directories are sorted
         """
-        for source,value in self._config.sources().items():
+        for source, value in self._config.sources().items():
             self._sync_source(value['dir'])
 
     def monitor(self):
@@ -135,4 +138,4 @@ def main():
 
 
 if __name__ == "__main__":
-        main()
+    main()

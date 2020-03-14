@@ -8,11 +8,12 @@ __license__ = "GPLv3"
 import photosort.test
 from photosort import walk
 
+
 class TestWalkForMedia(photosort.test.TestCase):
 
     def setUp(self):
         self.media1 = self.get_data_path('media1')
-        
+
     def test_directory_inspection(self):
         walker = walk.WalkForMedia(self.media1)
         files = [file for root, file in walker.find_media()]
@@ -21,6 +22,6 @@ class TestWalkForMedia(photosort.test.TestCase):
     def test_ignores(self):
         pass
 
+
 if __name__ == '__main__':
     unittest.main()
-   
