@@ -17,7 +17,7 @@ class TestWalkForMedia(test.TestCase):
     def test_directory_inspection(self):
         walker = walk.WalkForMedia(self.media1)
         files = [file for root, file in walker.find_media()]
-        self.assertTrue('img1.jpg' in files)
+        self.assertIn('img1.jpg', files)
 
     def test_ignores(self):
         pass
