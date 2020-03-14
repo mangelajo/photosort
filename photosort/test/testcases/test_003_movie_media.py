@@ -34,12 +34,7 @@ class TestMovieMedia(test.TestCase):
         mtime = time.localtime(self.mov1_mtime)
         expected_datetime = time.strftime(
             "%Y-%m-%d %H:%M:%S", mtime)  # it must come from exif data
-        decimals = "%.3g" % (round(self.mov1_mtime % 1, 3))
-        try:
-            ms = decimals.split('.')[1]
-            expected_datetime += '.' + ms
-        except IndexError:
-            pass
+
         self.assertIn(expected_datetime, str(self.movie.datetime()))
 
     def test_equal_checking(self):
