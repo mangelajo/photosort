@@ -8,7 +8,6 @@ __license__ = "GPLv3"
 import os
 import shutil
 import stat
-import tempfile
 
 import photosort.test as test
 from photosort import media
@@ -47,7 +46,7 @@ class TestPhotoMedia(test.TestCase):
         self.assertEqual(self.photo.get_filename(), 'img1.jpg')
 
     def test_rename(self):
-        tmpdir = tempfile.gettempdir()
+        tmpdir = self.tempdir()
         tmpfile = tmpdir + '/' + self.photo.get_filename()
         tmpfile_renamed = tmpdir + '/R' + self.photo.get_filename()
         tmpfile_mode = 0o666
@@ -63,7 +62,7 @@ class TestPhotoMedia(test.TestCase):
         self.assertEqual(file_mode, tmpfile_mode)
 
     def test_move_to_directory(self):
-        tmpdir = tempfile.gettempdir()
+        tmpdir = self.tempdir()
         tmpfile = tmpdir + '/' + self.photo.get_filename()
         dir_fmt = '%(year)d/%(year)04d_%(month)02d_%(day)02d'
         file_fmt = "%(year)04d%(month)02d%(day)02d%(hour)02d" \
@@ -89,4 +88,4 @@ class TestPhotoMedia(test.TestCase):
 
 
 if __name__ == '__main__':
-    test.main()
+    test.test.main()

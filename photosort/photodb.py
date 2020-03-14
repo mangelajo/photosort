@@ -63,12 +63,12 @@ class PhotoDB:
 
         try:
             os.remove(self._db_file + ".bak")
-        except os.OSError:
+        except OSError:
             pass
 
         try:
             os.rename(self._db_file, self._db_file + ".bak", self._file_mode)
-        except os.OSError:
+        except OSError:
             pass
 
         with open(self._db_file, 'w', encoding='utf-8') as f_out:
