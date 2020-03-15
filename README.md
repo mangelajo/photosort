@@ -1,5 +1,7 @@
 # PhotoSort Project
 
+![Unit/Functional testing](https://github.com/mangelajo/photosort/workflows/Unit/Functional%20testing/badge.svg)
+
 ## What is PhotoSort?
 
 PhotoSort simplifies your photo inbox, it watches for a set of photo
