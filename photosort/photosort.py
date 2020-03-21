@@ -17,6 +17,8 @@ from photosort import media
 from photosort import photodb
 from photosort import walk
 
+VERSION = "2020.1.1"
+
 
 class PhotoSort:
 
@@ -101,11 +103,15 @@ class PhotoSort:
             self.sync()
             time.sleep(10)
 
+    @staticmethod
+    def version():
+        print("photosort version %s" % VERSION)
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('op', action="store",
-                        choices=['sync', 'rebuilddb', 'monitor'],
+                        choices=['sync', 'rebuilddb', 'monitor', "version"],
                         help="Operation")
 
     group = parser.add_argument_group('Common parameters')
@@ -131,6 +137,8 @@ def main():
 
         elif ns.op == "monitor":
             photo_sort.monitor()
+        elif ns.op == "version":
+            photo_sort.version()
         else:
             print("Unknown operation: %s" % ns.op)
     except Exception:

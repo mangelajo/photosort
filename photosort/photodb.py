@@ -67,7 +67,7 @@ class PhotoDB:
             pass
 
         try:
-            os.rename(self._db_file, self._db_file + ".bak", self._file_mode)
+            os.rename(self._db_file, self._db_file + ".bak")
         except OSError:
             pass
 
