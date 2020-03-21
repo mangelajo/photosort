@@ -12,6 +12,10 @@ import stat
 import photosort.test as test
 from photosort import media
 
+TEST_DIR_FMT = '%(year)d/%(year)04d_%(month)02d_%(day)02d'
+TEST_FILE_FMT = "%(year)04d%(month)02d%(day)02d%(hour)02d" \
+                "%(minute)02d%(second)02d_"
+
 
 class TestPhotoMedia(test.TestCase):
 
@@ -64,15 +68,12 @@ class TestPhotoMedia(test.TestCase):
     def test_move_to_directory(self):
         tmpdir = self.tempdir()
         tmpfile = tmpdir + '/' + self.photo.get_filename()
-        dir_fmt = '%(year)d/%(year)04d_%(month)02d_%(day)02d'
-        file_fmt = "%(year)04d%(month)02d%(day)02d%(hour)02d" \
-            "%(minute)02d%(second)02d_"
 
         shutil.copy(self.photo.get_path(), tmpfile)
         photo_t = media.MediaFile.build_for(tmpfile)
 
         shutil.rmtree(tmpdir + '/2013', ignore_errors=True)
-        photo_t.move_to_directory_with_date(tmpdir, dir_fmt)
+        photo_t.move_to_directory_with_date(tmpdir, TEST_DIR_FMT)
 
         self.assertTrue(self.photo.is_equal_to(
             tmpdir + '/2013/2013_08_24/img1.jpg'))
@@ -81,10 +82,51 @@ class TestPhotoMedia(test.TestCase):
         photo_t = media.MediaFile.build_for(tmpfile)
 
         shutil.rmtree(tmpdir + '/2013', ignore_errors=True)
-        photo_t.move_to_directory_with_date(tmpdir, dir_fmt, file_fmt)
+        photo_t.move_to_directory_with_date(tmpdir, TEST_DIR_FMT,
+                                            TEST_FILE_FMT)
 
         self.assertTrue(self.photo.is_equal_to(
             tmpdir + '/2013/2013_08_24/20130824130552_img1.jpg'))
+
+    def test_move_to_existing_directory_pattern(self):
+        tmpdir = self.tempdir()
+        tmpfile = tmpdir + '/' + self.photo.get_filename()
+
+        shutil.copy(self.photo.get_path(), tmpfile)
+        photo_t = media.MediaFile.build_for(tmpfile)
+
+        shutil.rmtree(tmpdir + '/2013', ignore_errors=True)
+
+        default_dir = photo_t.locate_output_directory(tmpdir, TEST_DIR_FMT)
+        default_dir_tagged = default_dir + "_tagged_with_something"
+        os.makedirs(default_dir_tagged)
+        # after renaming an existing directory, it should figure out and
+        # use that one destination
+        self.assertEqual(default_dir_tagged,
+                         photo_t.locate_output_directory(tmpdir, TEST_DIR_FMT))
+
+        photo_t.move_to_directory_with_date(tmpdir, TEST_DIR_FMT)
+
+        self.assertTrue(self.photo.is_equal_to(
+            tmpdir + '/2013/2013_08_24_tagged_with_something/img1.jpg'))
+
+    def test_move_to_existing_directory_pattern_file_fmt(self):
+        tmpdir = self.tempdir()
+        tmpfile = tmpdir + '/' + self.photo.get_filename()
+        shutil.copy(self.photo.get_path(), tmpfile)
+        photo_t = media.MediaFile.build_for(tmpfile)
+
+        default_dir = photo_t.locate_output_directory(tmpdir, TEST_DIR_FMT)
+        default_dir_tagged = default_dir + "_tagged_with_something"
+        os.makedirs(default_dir_tagged)
+        photo_t.move_to_directory_with_date(tmpdir, TEST_DIR_FMT,
+                                            TEST_FILE_FMT)
+
+        file_path = os.path.join(tmpdir,
+                                 '2013',
+                                 '2013_08_24_tagged_with_something',
+                                 '20130824130552_img1.jpg')
+        self.assertTrue(self.photo.is_equal_to(file_path))
 
 
 if __name__ == '__main__':

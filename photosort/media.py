@@ -134,10 +134,24 @@ class MediaFile:
 
         return format % data
 
+    def locate_output_directory(self, directory, dir_format):
+        default = os.path.join(directory, self.calculate_datetime(dir_format))
+        parts = os.path.split(default)
+        last_dir = parts[-1]
+        top_dir = os.path.join(*parts[:-1])
+        try:
+            for item in os.listdir(top_dir):
+                file_path = os.path.join(top_dir, item)
+                if os.path.isdir(file_path) and last_dir in item:
+                    return file_path
+        except FileNotFoundError:
+            return default
+        return default
+
     def move_to_directory_with_date(self, directory, dir_format,
                                     file_format='', file_mode=0o774):
 
-        out_dir = directory + "/" + self.calculate_datetime(dir_format)
+        out_dir = self.locate_output_directory(directory, dir_format)
 
         try:
             os.mkdir(out_dir)
