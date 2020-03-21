@@ -11,10 +11,11 @@ import unittest
 
 
 class TestCase(unittest.TestCase):
-    def get_data_path(self, file_path):
+    @staticmethod
+    def get_data_path(file_path):
         return os.path.join(os.path.dirname(__file__), 'data', file_path)
 
-    def tempdir(self):
-        tmpdir = os.path.join(tempfile.gettempdir(), self.id())
-        os.makedirs(tmpdir, 0o777, True)
-        return tmpdir
+    def setUp(self):
+        _temp_dir = tempfile.TemporaryDirectory(prefix=self.id())
+        self._temp_dir = _temp_dir.name
+        self.addCleanup(_temp_dir.cleanup)

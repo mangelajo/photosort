@@ -139,10 +139,12 @@ class MediaFile:
         parts = os.path.split(default)
         last_dir = parts[-1]
         top_dir = os.path.join(*parts[:-1])
+        # try to figure out if a directory with the same pattern and a suffix
+        # added by the user exists already (tagged directory support)
         try:
             for item in os.listdir(top_dir):
                 file_path = os.path.join(top_dir, item)
-                if os.path.isdir(file_path) and last_dir in item:
+                if os.path.isdir(file_path) and item.startswith(last_dir):
                     return file_path
         except FileNotFoundError:
             return default

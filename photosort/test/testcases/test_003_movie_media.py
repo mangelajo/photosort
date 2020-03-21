@@ -17,6 +17,7 @@ from photosort import media
 class TestMovieMedia(test.TestCase):
 
     def setUp(self):
+        super(TestMovieMedia, self).setUp()
         self.mov1 = self.get_data_path('media2/mov1.mp4')
         self.mov1dup = self.get_data_path('media2/mov1_dup.mp4')
         self.mov1_mtime = os.path.getmtime(self.mov1)
@@ -56,9 +57,8 @@ class TestMovieMedia(test.TestCase):
 
     def test_rename(self):
 
-        tmpdir = self.tempdir()
-        tmpfile = tmpdir + '/' + self.movie.get_filename()
-        tmpfile_renamed = tmpdir + '/R' + self.movie.get_filename()
+        tmpfile = self._temp_dir + '/' + self.movie.get_filename()
+        tmpfile_renamed = self._temp_dir + '/R' + self.movie.get_filename()
         tmpfile_mode = 0o666
 
         shutil.copy(self.movie.get_path(), tmpfile)
@@ -72,8 +72,7 @@ class TestMovieMedia(test.TestCase):
         self.assertEqual(file_mode, tmpfile_mode)
 
     def test_move_to_directory(self):
-        tmpdir = self.tempdir()
-        tmpfile = tmpdir + '/' + self.movie.get_filename()
+        tmpfile = self._temp_dir + '/' + self.movie.get_filename()
         dir_fmt = '%(year)d/%(year)04d_%(month)02d_%(day)02d'
         file_fmt = "%(year)04d%(month)02d%(day)02d%(hour)02" \
             "d%(minute)02d%(second)02d_"
@@ -89,11 +88,11 @@ class TestMovieMedia(test.TestCase):
         second = "%02d" % mtime[5]
         movie_t = media.MediaFile.build_for(tmpfile)
 
-        shutil.rmtree(tmpdir + '/' + year, ignore_errors=True)
-        movie_t.move_to_directory_with_date(tmpdir, dir_fmt)
+        shutil.rmtree(self._temp_dir + '/' + year, ignore_errors=True)
+        movie_t.move_to_directory_with_date(self._temp_dir, dir_fmt)
 
         expected_filename = os.path.join(
-            tmpdir, year, year + '_' + month + '_' + day, 'mov1.mp4')
+            self._temp_dir, year, year + '_' + month + '_' + day, 'mov1.mp4')
         self.assertTrue(self.movie.is_equal_to(expected_filename))
 
         shutil.copy(self.movie.get_path(), tmpfile)
@@ -107,11 +106,11 @@ class TestMovieMedia(test.TestCase):
         second = "%02d" % mtime[5]
         movie_t = media.MediaFile.build_for(tmpfile)
 
-        shutil.rmtree(tmpdir + '/' + year, ignore_errors=True)
-        movie_t.move_to_directory_with_date(tmpdir, dir_fmt, file_fmt)
+        shutil.rmtree(self._temp_dir + '/' + year, ignore_errors=True)
+        movie_t.move_to_directory_with_date(self._temp_dir, dir_fmt, file_fmt)
 
         expected_filename = os.path.join(
-            tmpdir, year, year + '_' + month + '_' + day,
+            self._temp_dir, year, year + '_' + month + '_' + day,
             year + month + day + hour + minute + second + '_mov1.mp4')
         self.assertTrue(self.movie.is_equal_to(expected_filename))
 
