@@ -17,7 +17,7 @@ from photosort import media
 from photosort import photodb
 from photosort import walk
 
-VERSION = "2020.1.1"
+VERSION = "2020.1.2"
 
 
 class PhotoSort:

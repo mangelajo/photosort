@@ -30,7 +30,7 @@ class MediaFile:
         if extension in (
                 'jpeg', 'jpg', 'cr2', 'raw', 'png', 'arw', 'thm', 'orf'):
             return 'photo'
-        if extension in ('mpeg', 'mpg', 'mov', 'mp4', 'avi'):
+        if extension in ('m4v','mpeg', 'mpg', 'mov', 'mp4', 'avi'):
             return 'movie'
         return 'unknown'
 
