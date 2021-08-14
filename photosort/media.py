@@ -28,7 +28,7 @@ class MediaFile:
 
         extension = filename.lower().split('.')[-1]
         if extension in (
-                'jpeg', 'jpg', 'cr2', 'raw', 'png', 'arw', 'thm', 'orf'):
+                'heic', 'jpeg', 'jpg', 'cr2', 'raw', 'png', 'arw', 'thm', 'orf'):
             return 'photo'
         if extension in ('m4v','mpeg', 'mpg', 'mov', 'mp4', 'avi'):
             return 'movie'
