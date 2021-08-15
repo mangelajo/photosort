@@ -52,6 +52,14 @@ class PhotoSort:
         for file_dir, file_name in walker.find_media():
             file_path = os.path.join(file_dir, file_name)
             media_file = media.MediaFile.build_for(file_path)
+
+            try:
+                media_file.datetime()
+            except media.UnknownDatetime:
+                logging.error("skipping %s, no date found from EXIF",
+                              file_path)
+                continue
+
             if self._photodb.is_duplicate(media_file):
                 file = media_file.get_filename()
                 duplicates_path = os.path.join(self._duplicates_dir, file)
