@@ -9,7 +9,7 @@ import os
 import shutil
 import stat
 
-import photosort.test as test
+from photosort import test
 from photosort import media
 
 TEST_DIR_FMT = '%(year)d/%(year)04d_%(month)02d_%(day)02d'
@@ -20,7 +20,7 @@ TEST_FILE_FMT = "%(year)04d%(month)02d%(day)02d%(hour)02d" \
 class TestPhotoMedia(test.TestCase):
 
     def setUp(self):
-        super(TestPhotoMedia, self).setUp()
+        super().setUp()
         self.img1 = self.get_data_path('media1/img1.jpg')
         self.img1dup = self.get_data_path('media1/img1_dup.jpg')
         self.photo = media.MediaFile.build_for(self.img1)

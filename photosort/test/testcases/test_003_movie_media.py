@@ -10,18 +10,21 @@ import shutil
 import stat
 import time
 
-import photosort.test as test
+from photosort import test
 from photosort import media
 
 
 class TestMovieMedia(test.TestCase):
 
     def setUp(self):
-        super(TestMovieMedia, self).setUp()
+        super().setUp()
         self.mov1 = self.get_data_path('media2/mov1.mp4')
         self.mov1dup = self.get_data_path('media2/mov1_dup.mp4')
+        self.mov_exif = self.get_data_path('media2/mov_exif.m4v')
+
         self.mov1_mtime = os.path.getmtime(self.mov1)
         self.movie = media.MediaFile.build_for(self.mov1)
+        self.movie_exif = media.MediaFile.build_for(self.mov_exif)
 
     def test_hash_creation(self):
         expected_hash = "d41d8cd98f00b204e9800998ecf8427e"
@@ -37,6 +40,10 @@ class TestMovieMedia(test.TestCase):
             "%Y-%m-%d %H:%M:%S", mtime)  # it must come from exif data
 
         self.assertIn(expected_datetime, str(self.movie.datetime()))
+
+    def test_datetime_exif(self):
+        expected_datetime = "2020-03-08 21:51:41"
+        self.assertIn(expected_datetime, str(self.movie_exif.datetime()))
 
     def test_equal_checking(self):
         self.assertTrue(self.movie.is_equal_to(self.mov1dup))

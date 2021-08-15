@@ -15,6 +15,8 @@ import shutil
 import stat
 import sys
 
+from photosort import exif
+
 
 class MediaFile:
 
@@ -25,25 +27,18 @@ class MediaFile:
 
     @staticmethod
     def guess_file_type(filename):
-
         extension = filename.lower().split('.')[-1]
         if extension in ('heic', 'jpeg', 'jpg', 'cr2', 'raw', 'png', 'arw',
                          'thm', 'orf'):
             return 'photo'
-        if extension in ('m4v','mpeg', 'mpg', 'mov', 'mp4', 'avi'):
+        elif extension in ('m4v', 'mpeg', 'mpg', 'mov', 'mp4', 'avi'):
             return 'movie'
+
         return 'unknown'
 
     @staticmethod
     def build_for(filename):
-
-        file_type = MediaFile.guess_file_type(filename)
-        if file_type == 'photo':
-            from photosort import \
-                photo  # delayed import to avoid circular dependencies
-            return photo.Photo(filename)
-        else:
-            return MediaFile(filename)
+        return MediaFile(filename)
 
     def get_filename(self):
         return os.path.basename(self._filename)
@@ -54,7 +49,7 @@ class MediaFile:
     def get_path(self):
         return self._filename
 
-    def hash(self, hasher=None, blocksize=65536):
+    def md5_hash(self, hasher=None, blocksize=65536):
         if self._hash is not None:
             return self._hash
 
@@ -70,7 +65,86 @@ class MediaFile:
             self._hash = hasher.hexdigest()
             return self._hash
 
+    def _exif_data(self):
+        """Returns a dictionary from the exif data of an image. """
+        return exif.get_metadata(self._filename)
+
+    def _exif_datetime(self):
+        exif_datetime_str = ""
+
+        exif_data = self._exif_data()
+
+        for exif_tag in ['EXIF:DateTimeOriginal',
+                         'EXIF:DateTimeDigitized',
+                         'EXIF:CreateDate',
+                         'XMP-exif:DateTimeDigitized',
+                         'QuickTime:ContentCreateDate',
+                         'QuickTime:CreationDate'
+                         ]:
+            try:
+                exif_datetime_str = exif_data[exif_tag]
+            except KeyError:
+                continue
+            except IOError as e:
+                if str(e) == "not enough data":
+                    return None
+                if str(e) == "cannot identify image file":
+                    return None
+                else:
+                    raise
+            except ValueError:
+                return None  # time data '0000:00:00 00:00:00'
+            # only reached if the datetime information properly obtained
+            logging.debug("photo date and time obtained from: %s", exif_tag)
+            break
+
+        if exif_datetime_str == '0000:00:00 00:00:00':
+            return None
+
+        if exif_datetime_str:
+            try:
+                return datetime.datetime.strptime(str(exif_datetime_str),
+                                                  '%Y:%m:%d %H:%M:%S')
+            except UnicodeEncodeError as e:
+                if str(e).startswith("'ascii' codec can't encode character"):
+                    return None
+                else:
+                    raise
+
+            except ValueError:
+                return datetime.datetime.strptime(str(exif_datetime_str),
+                                                  '%Y:%m:%d %H:%M:%S%z')
+
+        else:
+            logging.debug("EXIF tag not available for %s", self._filename)
+            return None
+
     def datetime(self):
+        dt = self._exif_datetime()
+        logging.debug("date and time: %s", dt)
+        if dt is None:
+            logging.warning("fall-back to filesystem datetime: %s",
+                            self._filename)
+            dt = self.datetime_file()
+
+        return dt
+
+    def hash(self):
+        """
+        Builds an hexadecimal hash for a picture, extended with the
+        EXIF date as a string, to prevent as much as possible from md5
+        collisions
+        """
+
+        media_hash = self.md5_hash()
+        exif_datetime = self._exif_datetime()
+
+        if exif_datetime is not None:
+            media_hash += " - " + str(exif_datetime)
+
+        return media_hash
+
+    def datetime_file(self):
 
         ct1 = os.path.getmtime(self._filename)
         ct2 = os.path.getctime(self._filename)

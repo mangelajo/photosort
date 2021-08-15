@@ -6,7 +6,7 @@ __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
 import mock
-import photosort.test as test
+from photosort import test
 from photosort import walk
 
 
