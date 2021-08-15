@@ -17,13 +17,15 @@ TEST_FILE_FMT = "%(year)04d%(month)02d%(day)02d%(hour)02d" \
                 "%(minute)02d%(second)02d_"
 
 
-class TestPhotoMedia(test.TestCase):
+class TestExifMedia(test.TestCase):
 
     def setUp(self):
         super().setUp()
         self.img1 = self.get_data_path('media1/img1.jpg')
         self.img1dup = self.get_data_path('media1/img1_dup.jpg')
+        self.mov_exif = self.get_data_path('media2/mov_exif.m4v')
         self.photo = media.MediaFile.build_for(self.img1)
+        self.movie = media.MediaFile.build_for(self.mov_exif)
 
     def test_hash_creation(self):
         expected_hash = "a35de42abad366d0f6232a4abd0404c8 " \
@@ -35,9 +37,9 @@ class TestPhotoMedia(test.TestCase):
         self.assertEqual(same_photo.hash(), expected_hash)
 
     def test_datetime(self):
-        expected_datetime = "2013-08-24 13:05:52"  # it must come from EXIF
-
-        self.assertEqual(str(self.photo.datetime()), expected_datetime)
+        self.assertEqual(str(self.photo.datetime()), "2013-08-24 13:05:52")
+        self.assertEqual(str(self.movie.datetime()),
+                         "2020-03-08 21:51:41+01:00")
 
     def test_equal_checking(self):
         self.assertTrue(self.photo.is_equal_to(self.img1dup))
@@ -46,6 +48,17 @@ class TestPhotoMedia(test.TestCase):
         dir_fmt = '%(year)d/%(year)04d_%(month)02d_%(day)02d'
         dir_str = self.photo.calculate_datetime(dir_fmt)
         self.assertEqual(dir_str, "2013/2013_08_24")
+
+    def test_exif_date_parsing(self):
+        formats = ["2020:03:08 21:51:41+01:00",
+                   "2020:03:08 21:51:41-01:00",
+                   "2020:03:08 21:51:41+0100",
+                   "2020:03:08 21:51:41-0100",
+                   "2020:03:08 21:51:41"]
+
+        for format in formats:
+            dt = media.MediaFile.parse_exif_datetime(format)
+            self.assertEqual(dt.year, 2020)
 
     def test_get_filename(self):
         self.assertEqual(self.photo.get_filename(), 'img1.jpg')

@@ -106,35 +106,41 @@ class MediaFile:
             return None
 
         if exif_datetime_str:
-            try:
-                return datetime.datetime.strptime(str(exif_datetime_str),
-                                                  '%Y:%m:%d %H:%M:%S')
-            except UnicodeEncodeError as e:
-                if str(e).startswith("'ascii' codec can't encode character"):
-                    return None
-                else:
-                    raise
-
-            except ValueError:
-                parts = exif_datetime_str.split('+')
-                parts[1] = parts[1].replace(":", "")
-                exif_datetime_str = '+'.join(parts)
-                return datetime.datetime.strptime(str(exif_datetime_str),
-                                                  '%Y:%m:%d %H:%M:%S%z')
-
+            return self.parse_exif_datetime(exif_datetime_str)
         else:
             logging.debug("EXIF tag not available for %s", self._filename)
             return None
+
+    @staticmethod
+    def parse_exif_datetime(exif_datetime_str):
+        try:
+            return datetime.datetime.strptime(str(exif_datetime_str),
+                                              '%Y:%m:%d %H:%M:%S')
+        except UnicodeEncodeError as e:
+            if str(e).startswith("'ascii' codec can't encode character"):
+                return None
+            else:
+                raise
+
+        except ValueError:
+            # if the string contains the timezone +0100 -0100 +01:00 -01:00
+            # extension, strip the ':' and parse with %z
+            if '+' in exif_datetime_str:
+                parts = exif_datetime_str.split('+')
+                parts[1] = parts[1].replace(":", "")
+                exif_datetime_str = '+'.join(parts)
+            if '-' in exif_datetime_str:
+                parts = exif_datetime_str.split('-')
+                parts[1] = parts[1].replace(":", "")
+                exif_datetime_str = '-'.join(parts)
+            return datetime.datetime.strptime(str(exif_datetime_str),
+                                              '%Y:%m:%d %H:%M:%S%z')
 
     def datetime(self):
         dt = self._exif_datetime()
         logging.debug("date and time: %s", dt)
         if dt is None:
             raise UnknownDatetime()
-        #if dt is None:
-        #    logging.warning("fall-back to filesystem datetime: %s",
-        #                    self._filename)
-        #    dt = self.datetime_file()
 
         return dt
 

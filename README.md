@@ -17,6 +17,8 @@ it will be moved to the duplicates directory
 pip3 install photosort
 ```
 
+PhotoSort depends on `exiftool`, please install exiftool in your system.
+
 ## Alternate install method
 
 ```
@@ -50,7 +52,8 @@ In the future this must be an sqlite file.
 
 ## Dependencies
 
-photosort depends on Pillow and piyaml
+photosort depends on `exiftool` to identify the original creation
+time of videos or pictures.
 
 ## Configuration
 
@@ -77,6 +80,11 @@ output:
   chmod: 0o774
   log_file: 'photosort.log'
   db_file: 'photosort.db'
-
-
 ```
+
+## Release Notes
+
+### 2021.1.4
+ * PIL image library has been replaced for exiftool so datetime from videos can
+   be obtained too.
+ * Files with no creation datetime EXIF or tags are ignored for now.
