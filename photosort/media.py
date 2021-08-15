@@ -27,8 +27,8 @@ class MediaFile:
     def guess_file_type(filename):
 
         extension = filename.lower().split('.')[-1]
-        if extension in (
-                'heic', 'jpeg', 'jpg', 'cr2', 'raw', 'png', 'arw', 'thm', 'orf'):
+        if extension in ('heic', 'jpeg', 'jpg', 'cr2', 'raw', 'png', 'arw',
+                         'thm', 'orf'):
             return 'photo'
         if extension in ('m4v','mpeg', 'mpg', 'mov', 'mp4', 'avi'):
             return 'movie'

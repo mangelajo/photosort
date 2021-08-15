@@ -10,8 +10,7 @@ import datetime
 import logging
 import sys
 
-from PIL import Image
-from PIL.ExifTags import TAGS
+from photosort import exif
 from photosort import media
 
 
@@ -22,39 +21,22 @@ class Photo(media.MediaFile):
         self.__exif_data = None
 
     def _exif_data(self):
-        """Returns a dictionary from the exif data of an
-         PIL Image item. """
-        self.__exif_data = {}
-        try:
-            image = Image.open(self._filename)
-        except IOError as e:
-            if str(e).startswith("cannot identify image file"):
-                return {}
-            else:
-                raise
-
-        try:
-            info = image._getexif()
-        except (AttributeError, IndexError):
-            return {}
-
-        if info:
-            for tag, value in info.items():
-                decoded = TAGS.get(tag, tag)
-                self.__exif_data[decoded] = value
-
-        return self.__exif_data
+        """Returns a dictionary from the exif data of an image. """
+        return exif.get_metadata(self._filename)
 
     def _exif_datetime(self):
         exif_datetime_str = ""
 
         exif_data = self._exif_data()
-        for exif_tag in ['DateTimeOriginal', 'Image DateTime',
-                         'DateTimeDigitized']:
+
+        for exif_tag in ['EXIF:DateTimeOriginal',
+                         'EXIF:DateTimeDigitized',
+                         'EXIF:CreateDate',
+                         'XMP-exif:DateTimeDigitized',
+                         ]:
             try:
                 exif_datetime_str = exif_data[exif_tag]
             except KeyError:
-                logging.debug("EXIF tag not available: %s", exif_tag)
                 continue
             except IOError as e:
                 if str(e) == "not enough data":
@@ -82,6 +64,7 @@ class Photo(media.MediaFile):
                 else:
                     raise
         else:
+            logging.debug("EXIF tag not available for %s", self._filename)
             return None
 
     def datetime(self):

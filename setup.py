@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import setuptools
-from photosort import photosort
+from photosort.version import VERSION
 
 setuptools.setup(
     name='photosort',
-    version=photosort.VERSION,
+    version=VERSION,
     description='Picture inbox simplified',
     author='Miguel Angel Ajo Pelayo',
     author_email='miguelangel@ajo.es',
@@ -16,7 +16,7 @@ setuptools.setup(
         'console_scripts': [
             'photosort = photosort.photosort:main'
         ]},
-    install_requires=['pyaml', 'Pillow'],
+    install_requires=['pyaml', 'PyExifTool'],
 
     data_files=[('etc', ['etc/photosort.yml'])],
     test_suite='photosort.test.testcases'

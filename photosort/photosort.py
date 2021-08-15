@@ -13,11 +13,11 @@ import time
 import traceback
 
 from photosort import config
+from photosort import exif
 from photosort import media
 from photosort import photodb
 from photosort import walk
-
-VERSION = "2020.1.3"
+from photosort.version import VERSION
 
 
 class PhotoSort:
@@ -122,6 +122,9 @@ def main():
                        action="store_true",
                        help="Enable debugging")
     ns = parser.parse_args()
+
+    # TODO: Capture exception and log error if exiftool is not available
+    exif.start()
 
     log_level = logging.INFO
     if ns.debug:
