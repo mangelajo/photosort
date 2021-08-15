@@ -117,7 +117,7 @@ class MediaFile:
 
             except ValueError:
                 parts = exif_datetime_str.split('+')
-                parts[1] = parts[1].replace(":" ,"")
+                parts[1] = parts[1].replace(":", "")
                 exif_datetime_str = '+'.join(parts)
                 return datetime.datetime.strptime(str(exif_datetime_str),
                                                   '%Y:%m:%d %H:%M:%S%z')
@@ -241,7 +241,7 @@ class MediaFile:
             out_dir = self.locate_output_directory(directory, dir_format)
         except UnknownDatetime:
             logging.error("unknown datetime, skipping  %s", self._filename)
-            return
+            return False
 
         try:
             os.mkdir(out_dir)
