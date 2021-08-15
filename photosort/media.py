@@ -18,6 +18,10 @@ import sys
 from photosort import exif
 
 
+class UnknownDatetime(Exception):
+    pass
+
+
 class MediaFile:
 
     def __init__(self, filename):
@@ -123,9 +127,11 @@ class MediaFile:
         dt = self._exif_datetime()
         logging.debug("date and time: %s", dt)
         if dt is None:
-            logging.warning("fall-back to filesystem datetime: %s",
-                            self._filename)
-            dt = self.datetime_file()
+            raise UnknownDatetime()
+        #if dt is None:
+        #    logging.warning("fall-back to filesystem datetime: %s",
+        #                    self._filename)
+        #    dt = self.datetime_file()
 
         return dt
 
@@ -226,8 +232,13 @@ class MediaFile:
 
     def move_to_directory_with_date(self, directory, dir_format,
                                     file_format='', file_mode=0o774):
+        out_dir = None
 
-        out_dir = self.locate_output_directory(directory, dir_format)
+        try:
+            out_dir = self.locate_output_directory(directory, dir_format)
+        except UnknownDatetime:
+            logging.error("unknown datetime, skipping    %s", self._filename)
+            return
 
         try:
             os.mkdir(out_dir)
