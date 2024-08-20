@@ -1,3 +1,4 @@
+dummy edit to trigger tests
 # PhotoSort Project
 
 ![Unit/Functional testing](https://github.com/mangelajo/photosort/workflows/Unit/Functional%20testing/badge.svg)
