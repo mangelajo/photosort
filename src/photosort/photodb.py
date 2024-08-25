@@ -1,6 +1,4 @@
 # -*- mode: python; coding: utf-8 -*-
-from __future__ import print_function
-
 __author__ = "Miguel Angel Ajo Pelayo"
 __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"

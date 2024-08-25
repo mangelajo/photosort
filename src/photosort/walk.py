@@ -11,7 +11,7 @@ import logging
 import os
 import time
 
-from photosort import media
+from . import media
 
 
 class WalkForMedia:

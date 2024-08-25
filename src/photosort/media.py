@@ -15,7 +15,7 @@ import shutil
 import stat
 import sys
 
-from photosort import exif
+from . import exif
 
 
 class UnknownDatetime(Exception):
