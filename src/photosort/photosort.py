@@ -2,22 +2,23 @@
 
 __author__ = "Miguel Angel Ajo Pelayo"
 __email__ = "miguelangel@ajo.es"
-__copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
+__copyright__ = "Copyright (C) Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
 import argparse
+from importlib.metadata import version
 import logging
 import os
 import sys
 import time
 import traceback
 
-from photosort import config
-from photosort import exif
-from photosort import media
-from photosort import photodb
-from photosort import walk
-from photosort.version import VERSION
+
+from . import config
+from . import exif
+from . import media
+from . import photodb
+from . import walk
 
 
 class PhotoSort:
@@ -113,7 +114,7 @@ class PhotoSort:
 
     @staticmethod
     def version():
-        print("photosort version %s" % VERSION)
+        print("photosort version %s" % version('photosort'))
 
 
 def main():

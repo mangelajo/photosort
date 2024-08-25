@@ -1,6 +1,11 @@
 name: Unit/Functional testing
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
 
 jobs:
   build:
@@ -8,18 +13,19 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+      fail-fast: false
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        sudo apt-get install -y exiftool
-        python -m pip install --upgrade pip
-        pip install tox tox-gh-actions
-    - name: Test with tox
-      run: tox
+    - uses: actions/checkout@v4
+
+    - name: Set up uv
+      # Install latest uv version using the installer
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+    - name: Setup exiftool
+      run: sudo apt-get -y install exiftool
+
+    - name: Test with Python ${{ matrix.python-version }}
+      run: uv run -p ${{ matrix.python-version }} pytest
+
