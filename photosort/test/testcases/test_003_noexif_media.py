@@ -13,11 +13,11 @@ class TestMovieMedia(test.TestCase):
 
     def setUp(self):
         super().setUp()
-        self.mov1 = self.get_data_path('media2/mov1.mp4')
+        self.mov1 = self.get_data_path('media2/BigBuckBunny.avi')
         self.movie = media.MediaFile.build_for(self.mov1)
 
     def test_hash_creation(self):
-        expected_hash = "d41d8cd98f00b204e9800998ecf8427e"
+        expected_hash = "630569ce2efda22d55d271bfe8ec4428"
         self.assertEqual(self.movie.hash(), expected_hash)
 
         # check for hasher non being re-started

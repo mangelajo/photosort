@@ -83,7 +83,11 @@ class MediaFile:
                          'EXIF:CreateDate',
                          'XMP-exif:DateTimeDigitized',
                          'QuickTime:ContentCreateDate',
-                         'QuickTime:CreationDate'
+                         'QuickTime:CreationDate',
+                         'QuickTime:CreateDate',
+                         'MediaCreateDate',
+                         'TrackCreateDate',
+                         'CreateDate',
                          ]:
             try:
                 exif_datetime_str = exif_data[exif_tag]

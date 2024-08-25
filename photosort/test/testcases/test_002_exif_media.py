@@ -9,6 +9,7 @@ import os
 import shutil
 import stat
 
+from photosort.test import test as test_main
 from photosort import test
 from photosort import media
 
@@ -39,7 +40,7 @@ class TestExifMedia(test.TestCase):
     def test_datetime(self):
         self.assertEqual(str(self.photo.datetime()), "2013-08-24 13:05:52")
         self.assertEqual(str(self.movie.datetime()),
-                         "2020-03-08 21:51:41+01:00")
+                         "2020-06-18 07:50:31")
 
     def test_equal_checking(self):
         self.assertTrue(self.photo.is_equal_to(self.img1dup))
@@ -145,4 +146,4 @@ class TestExifMedia(test.TestCase):
 
 
 if __name__ == '__main__':
-    test.test.main()
+    test_main.main()

@@ -136,6 +136,7 @@ def main():
 
     log_level = logging.INFO
     if ns.debug:
+        print("Debug log level")
         log_level = logging.DEBUG
     photo_sort = PhotoSort(ns.config, log_level)
 

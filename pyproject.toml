@@ -1,0 +1,26 @@
+[project]
+name = "photosort"
+authors = [{name="Miguel Angel Ajo Pelayo", email = "miguelangel@ajo.es"}]
+version = "2024.1.0"
+description = "Picture inbox simplified"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pyaml>=24.7.0",
+    "pyexiftool>=0.5.6",
+]
+
+[project.scripts]
+photosort = "photosort.photosort:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.3.2",
+    "mock>=5.1.0",
+    "setuptools>=73.0.1",
+    "twine>=5.1.1",
+]

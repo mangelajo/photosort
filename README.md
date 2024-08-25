@@ -83,6 +83,8 @@ output:
 ```
 
 ## Release Notes
+### 2024.1.1
+ * Support for python 3.12, fixed missing files in tests
 
 ### 2021.1.4
  * PIL image library has been replaced for exiftool so datetime from videos can
