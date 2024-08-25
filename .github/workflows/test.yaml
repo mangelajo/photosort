@@ -3,7 +3,7 @@ name: Unit/Functional testing
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
 
 
