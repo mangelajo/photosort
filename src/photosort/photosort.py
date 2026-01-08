@@ -157,6 +157,7 @@ def main():
     except Exception:
         logging.critical("Unexpected error: %s", sys.exc_info()[0])
         logging.critical(traceback.format_exc())
+        sys.exit(1)
 
 
 if __name__ == "__main__":
