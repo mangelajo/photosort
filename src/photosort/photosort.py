@@ -20,6 +20,9 @@ from . import media
 from . import photodb
 from . import walk
 
+# Monitor mode sleep interval in seconds between sync operations
+MONITOR_INTERVAL_SECONDS = 10
+
 
 class PhotoSort:
 
@@ -105,12 +108,12 @@ class PhotoSort:
 
     def monitor(self):
         """
-        regularly (10s at the time of this writting)
-        ensures that the media files of the input directories are sorted
+        Continuously monitors and syncs media files from input directories.
+        Runs sync operation every MONITOR_INTERVAL_SECONDS (default: 10s).
         """
         while True:
             self.sync()
-            time.sleep(10)
+            time.sleep(MONITOR_INTERVAL_SECONDS)
 
     @staticmethod
     def version():
