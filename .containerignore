@@ -1,0 +1,39 @@
+# Git files
+.git
+.gitignore
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+.eggs
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov
+.tox
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Documentation
+*.md
+!README.md
+
+# Beads
+.beads
+
+# Config files (user should provide)
+my_photosort.yaml

@@ -14,3 +14,9 @@ sync:
 
 install-uv:
 	curl -LsSf https://astral.sh/uv/install.sh | sh
+
+container-build:
+	podman build -t photosort:latest -f Containerfile .
+
+container-run:
+	podman run --rm -it photosort:latest
