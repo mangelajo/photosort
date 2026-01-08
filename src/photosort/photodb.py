@@ -92,8 +92,8 @@ class PhotoDB:
 
         file_type = media_file.type()
 
-        # remove output dir path + '/'
-        file_dir = file_dir[len(self._output_dir) + 1:]
+        # Store path relative to output directory
+        file_dir = os.path.relpath(file_dir, self._output_dir)
         self._hashes[hash] = {'dir': file_dir,
                               'name': file_name,
                               'type': file_type}
