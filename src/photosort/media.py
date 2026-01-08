@@ -58,6 +58,9 @@ class MediaFile:
             return self._hash
 
         if hasher is None:
+            # Using MD5 for performance - this is for duplicate detection only,
+            # not cryptographic security. The hash is combined with EXIF
+            # datetime in the hash() method to provide better uniqueness.
             hasher = hashlib.md5()
 
         with open(self._filename, 'rb') as afile:
