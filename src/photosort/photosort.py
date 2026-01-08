@@ -37,6 +37,7 @@ class PhotoSort:
         self._inputs = (self._config.sources()[source]['dir']
                         for source in self._config.sources().keys())
         self._file_mode = self._config.output_chmod()
+        self._dir_mode = self._config.output_chmod_dirs()
 
     def _setup_logging(self, log_level):
         # Configure root logger
@@ -97,13 +98,14 @@ class PhotoSort:
 
                 logging.info("moving to duplicates: %s", duplicates_path)
 
-                media_file.rename_as(duplicates_path, self._file_mode)
+                media_file.rename_as(duplicates_path, self._file_mode, self._dir_mode)
             else:
                 if media_file.move_to_directory_with_date(
                         self._config.output_dir(),
                         self._dir_pattern,
                         self._file_prefix,
-                        self._file_mode):
+                        self._file_mode,
+                        self._dir_mode):
                     self._photodb.add_to_db(
                         media_file.get_directory(), media_file.get_filename(),
                         media_file)

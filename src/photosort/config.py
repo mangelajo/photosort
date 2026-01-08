@@ -70,6 +70,19 @@ class Config:
     def output_chmod(self):
         return int(self._data['output']['chmod'], 8)  # octal conversion
 
+    def output_chmod_dirs(self):
+        """
+        Returns permissions for directories.
+        If chmod_dirs is specified, use that value.
+        Otherwise, default to chmod | 0o111 (add execute for user/group/other).
+        Directories need execute permission to be traversable.
+        """
+        if 'chmod_dirs' in self._data['output']:
+            return int(self._data['output']['chmod_dirs'], 8)
+        else:
+            # Default: take file permissions and add execute for all
+            return self.output_chmod() | 0o111
+
     def log_to_stderr(self):
         """
         Returns whether to log to stderr in addition to log file.

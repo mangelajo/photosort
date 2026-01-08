@@ -198,13 +198,14 @@ class MediaFile:
     def makedirs_f(self, path, mode):
         """Create directory hierarchy with specified mode.
 
-        Creates all intermediate directories with the specified mode plus
-        execute permission. This ensures consistent permissions across the
-        entire directory tree, unlike os.makedirs which may not apply mode
-        to intermediate directories on all platforms.
+        Creates all intermediate directories with the specified mode.
+        The mode should already include execute permissions (0o111) for
+        directories to be traversable. This ensures consistent permissions
+        across the entire directory tree, unlike os.makedirs which may not
+        apply mode to intermediate directories on all platforms.
         """
         try:
-            os.makedirs(path, mode=(mode | stat.S_IXUSR), exist_ok=True)
+            os.makedirs(path, mode=mode, exist_ok=True)
         except OSError:
             # Fall back to manual creation if makedirs fails
             paths = os.path.split(path)
@@ -213,12 +214,21 @@ class MediaFile:
                 total_path = os.path.join(total_path, directory)
                 if os.path.isdir(total_path):
                     continue
-                os.mkdir(total_path, mode | stat.S_IXUSR)
+                os.mkdir(total_path, mode)
 
-    def rename_as(self, new_filename, file_mode=0o774):
+    def rename_as(self, new_filename, file_mode=0o774, dir_mode=None):
+        """Rename/move file to new location with specified permissions.
+
+        Args:
+            new_filename: Destination path
+            file_mode: Permissions for the file (default: 0o774)
+            dir_mode: Permissions for created directories (default: file_mode | 0o111)
+        """
+        if dir_mode is None:
+            dir_mode = file_mode | 0o111
 
         try:
-            self.makedirs_f(os.path.dirname(new_filename), file_mode)
+            self.makedirs_f(os.path.dirname(new_filename), dir_mode)
         except OSError as e:
             logging.error("Unable to move: %s (%s)", new_filename, e)
             return False
@@ -256,7 +266,19 @@ class MediaFile:
         return default
 
     def move_to_directory_with_date(self, directory, dir_format,
-                                    file_format='', file_mode=0o774):
+                                    file_format='', file_mode=0o774, dir_mode=None):
+        """Move file to date-organized directory with specified permissions.
+
+        Args:
+            directory: Base output directory
+            dir_format: Directory naming pattern
+            file_format: Optional file prefix pattern
+            file_mode: Permissions for the file (default: 0o774)
+            dir_mode: Permissions for created directories (default: file_mode | 0o111)
+        """
+        if dir_mode is None:
+            dir_mode = file_mode | 0o111
+
         out_dir = None
 
         try:
@@ -267,7 +289,7 @@ class MediaFile:
 
         try:
             os.mkdir(out_dir)
-            os.chmod(out_dir, file_mode | stat.S_IXUSR)
+            os.chmod(out_dir, dir_mode)
         except OSError:
             pass  # it already exists
 
@@ -279,7 +301,7 @@ class MediaFile:
         new_filename = out_dir + "/" + file_prefix
         logging.info("moving %s to %s", self._filename, new_filename)
 
-        if self.rename_as(new_filename, file_mode):
+        if self.rename_as(new_filename, file_mode, dir_mode):
             self._filename = new_filename
             return True
         else:

@@ -161,11 +161,18 @@ YAML config with two main sections:
 - `file_prefix`: Optional filename prefix (e.g., `%(year)d%(month)02d%(day)02d_`)
 - `duplicates_dir`: Directory for duplicate files
 - `chmod`: File permissions in octal format (e.g., `0o774`)
+- `chmod_dirs`: Directory permissions in octal format (optional, defaults to `chmod | 0o111`)
 - `log_file`: Path to log file (optional)
 - `log_to_stderr`: Log to console/stderr in addition to file (default: `true`, optional)
 - `db_file`: Path to CSV database file
 
 Pattern variables: `%(year)d`, `%(month)02d`, `%(day)02d`, `%(hour)02d`, `%(minute)02d`, `%(second)02d`
+
+**Permission handling:**
+- Files use `chmod` permissions (e.g., `0o774` = rwxrwxr--)
+- Directories use `chmod_dirs` if specified, otherwise `chmod | 0o111` (adds execute for all)
+- Execute permission (0o111) is required for directories to be traversable
+- Example: `chmod: 0o664` files → `chmod_dirs: 0o775` directories (auto-default)
 
 **Logging behavior:**
 - If `log_to_stderr` is `true` (default): logs to both console and file
