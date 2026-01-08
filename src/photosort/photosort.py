@@ -132,8 +132,16 @@ def main():
                        help="Enable debugging")
     ns = parser.parse_args()
 
-    # TODO: Capture exception and log error if exiftool is not available
-    exif.start()
+    try:
+        exif.start()
+    except FileNotFoundError:
+        print("ERROR: exiftool is not installed. PhotoSort requires exiftool to read EXIF metadata.")
+        print("")
+        print("Installation instructions:")
+        print("  Ubuntu/Debian: sudo apt-get install exiftool")
+        print("  macOS:         brew install exiftool")
+        print("  Other:         https://exiftool.org/install.html")
+        sys.exit(1)
 
     log_level = logging.INFO
     if ns.debug:
