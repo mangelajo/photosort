@@ -15,8 +15,15 @@ sync:
 install-uv:
 	curl -LsSf https://astral.sh/uv/install.sh | sh
 
+# Container image configuration
+CONTAINER_IMAGE ?= quay.io/mangelajo/photosort
+CONTAINER_TAG ?= latest
+
 container-build:
-	podman build -t photosort:latest -f Containerfile .
+	podman build -t $(CONTAINER_IMAGE):$(CONTAINER_TAG) -f Containerfile .
+
+container-push:
+	podman push $(CONTAINER_IMAGE):$(CONTAINER_TAG)
 
 container-run:
-	podman run --rm -it photosort:latest
+	podman run --rm -it $(CONTAINER_IMAGE):$(CONTAINER_TAG)
