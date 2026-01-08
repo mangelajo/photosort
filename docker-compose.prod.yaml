@@ -1,0 +1,80 @@
+# PhotoSort Production Docker Compose Configuration
+#
+# This configuration embeds the photosort config inline using Docker configs.
+# Based on your my_photosort.yaml configuration.
+#
+# Quick Start:
+#   1. Review/update the volume path and config below
+#   2. Run: docker-compose -f docker-compose.prod.yaml up -d
+#   3. Check logs: docker-compose -f docker-compose.prod.yaml logs -f
+#   4. Stop: docker-compose -f docker-compose.prod.yaml down
+
+version: '3.8'
+
+services:
+  photosort:
+    image: quay.io/mangelajo/photosort:latest
+    container_name: photosort
+    restart: unless-stopped
+
+    volumes:
+      # Your photos directory - CHANGE THIS to match your setup
+      - /Volumes/Fotos:/photos
+
+    configs:
+      - source: photosort_config
+        target: /etc/photosort.yml
+
+    # Run in monitor mode (continuously watches for new photos every 10 seconds)
+    # Other options: 'sync' (one-time), 'rebuilddb' (rebuild database)
+    command: ["photosort", "--config", "/etc/photosort.yml", "monitor"]
+
+    environment:
+      # Set your timezone
+      - TZ=Europe/Madrid
+
+    # Optional: Enable debug logging (uncomment to activate)
+    # command: ["photosort", "--config", "/etc/photosort.yml", "--debug", "monitor"]
+
+    # Resource limits (optional, adjust as needed)
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+    # Health check (ensures container is running properly)
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "photosort"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+configs:
+  photosort_config:
+    # Configuration based on your my_photosort.yaml
+    # All paths are relative to the /photos mount point in the container
+    content: |
+      sources:
+        nasinbox:
+          dir: '/photos/inbox'
+
+      output:
+        dir: '/photos'
+        dir_pattern: "%(year)d/%(year)04d_%(month)02d_%(day)02d"
+        file_prefix: "%(year)d%(month)02d%(day)02d%(hour)02d%(minute)02d%(second)02d_"
+        duplicates_dir: 'duplicates'
+        chmod: '0o774'
+        log_file: 'photosort.log'
+        db_file: 'photosort.db'

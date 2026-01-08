@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  photosort:
+    image: quay.io/mangelajo/photosort:latest
+    container_name: photosort
+    restart: unless-stopped
+
+    volumes:
+      # Mount your photos directory
+      - /path/to/your/photos:/photos
+
+      # Mount config file from inline config
+      - type: bind
+        source: ./photosort-config.yaml
+        target: /etc/photosort.yml
+        read_only: true
+
+    # Run in monitor mode to continuously watch for new photos
+    command: ["--debug", "--config", "/etc/photosort.yml", "monitor"]
+
+    # Optional: Set timezone
+    environment:
+      - TZ=Europe/Madrid
+
+    # Install exiftool if not in base image
+    # Uncomment if your image doesn't have exiftool
+    # entrypoint: |
+    #   sh -c "apt-get update && apt-get install -y exiftool && photosort --config /etc/photosort.yml monitor"
+
+---
+# Alternative approach: Using Docker configs (requires Docker Swarm or Docker Compose v3.3+)
+version: '3.8'
+
+services:
+  photosort-with-inline-config:
+    image: quay.io/mangelajo/photosort:latest
+    container_name: photosort-monitor
+    restart: unless-stopped
+
+    volumes:
+      - /path/to/your/photos:/photos
+
+    configs:
+      - source: photosort_config
+        target: /etc/photosort.yml
+
+    command: ["--debug", "--config", "/etc/photosort.yml", "monitor"]
+
+    environment:
+      - TZ=Europe/Madrid
+
+configs:
+  photosort_config:
+    content: |
+      sources:
+        inbox:
+          dir: '/photos/inbox'
+
+      output:
+        dir: '/photos'
+        dir_pattern: "%(year)d/%(year)04d_%(month)02d_%(day)02d"
+        file_prefix: "%(year)d%(month)02d%(day)02d%(hour)02d%(minute)02d%(second)02d_"
+        duplicates_dir: 'duplicates'
+        chmod: '0o774'
+        log_file: 'photosort.log'
+        db_file: 'photosort.db'

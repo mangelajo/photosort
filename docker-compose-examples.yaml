@@ -1,0 +1,287 @@
+# PhotoSort Docker Compose Examples
+# Multiple deployment scenarios for different use cases
+
+# ==============================================================================
+# EXAMPLE 1: Simple deployment with external config file
+# ==============================================================================
+# Usage: docker-compose up photosort-simple
+# Requires: photosort-config.yaml in the same directory
+# ==============================================================================
+version: '3.8'
+
+services:
+  photosort-simple:
+    image: photosort:latest
+    container_name: photosort-simple
+    restart: unless-stopped
+
+    volumes:
+      # Your photos directory
+      - /path/to/your/photos:/photos
+      # External config file
+      - ./photosort-config.yaml:/etc/photosort.yml:ro
+
+    command: ["photosort", "--config", "/etc/photosort.yml", "monitor"]
+
+    environment:
+      - TZ=Europe/Madrid
+
+---
+# ==============================================================================
+# EXAMPLE 2: Inline config using Docker configs (Docker Compose 3.3+)
+# ==============================================================================
+# Usage: docker-compose -f docker-compose-examples.yaml up photosort-inline
+# No external files needed - config embedded in this file
+# ==============================================================================
+version: '3.8'
+
+services:
+  photosort-inline:
+    image: photosort:latest
+    container_name: photosort-inline
+    restart: unless-stopped
+
+    volumes:
+      - /path/to/your/photos:/photos
+
+    configs:
+      - source: photosort_config
+        target: /etc/photosort.yml
+
+    command: ["photosort", "--config", "/etc/photosort.yml", "monitor"]
+
+    environment:
+      - TZ=Europe/Madrid
+
+configs:
+  photosort_config:
+    content: |
+      sources:
+        inbox:
+          dir: '/photos/inbox'
+
+      output:
+        dir: '/photos/sorted'
+        dir_pattern: "%(year)d/%(year)04d_%(month)02d_%(day)02d"
+        file_prefix: "%(year)d%(month)02d%(day)02d%(hour)02d%(minute)02d%(second)02d_"
+        duplicates_dir: 'duplicates'
+        chmod: '0o774'
+        log_file: 'photosort.log'
+        db_file: 'photosort.db'
+
+---
+# ==============================================================================
+# EXAMPLE 3: Multi-source deployment (multiple input directories)
+# ==============================================================================
+# Usage: docker-compose -f docker-compose-examples.yaml up photosort-multisource
+# Monitors multiple photo sources (NAS inbox, Camera, Phone sync)
+# ==============================================================================
+version: '3.8'
+
+services:
+  photosort-multisource:
+    image: photosort:latest
+    container_name: photosort-multisource
+    restart: unless-stopped
+
+    volumes:
+      # Mount multiple source directories
+      - /mnt/nas/photos/inbox:/photos/nas-inbox:ro
+      - /mnt/camera-uploads:/photos/camera:ro
+      - /mnt/phone-sync:/photos/phone:ro
+      # Output directory
+      - /mnt/nas/photos/sorted:/photos/sorted
+
+    configs:
+      - source: multisource_config
+        target: /etc/photosort.yml
+
+    command: ["photosort", "--config", "/etc/photosort.yml", "monitor"]
+
+    environment:
+      - TZ=Europe/Madrid
+
+configs:
+  multisource_config:
+    content: |
+      sources:
+        nas_inbox:
+          dir: '/photos/nas-inbox'
+        camera:
+          dir: '/photos/camera'
+        phone:
+          dir: '/photos/phone'
+
+      output:
+        dir: '/photos/sorted'
+        dir_pattern: "%(year)d/%(year)04d_%(month)02d_%(day)02d"
+        file_prefix: "%(year)d%(month)02d%(day)02d%(hour)02d%(minute)02d%(second)02d_"
+        duplicates_dir: 'duplicates'
+        chmod: '0o774'
+        log_file: 'photosort.log'
+        db_file: 'photosort.db'
+
+---
+# ==============================================================================
+# EXAMPLE 4: One-time sync (not monitor mode)
+# ==============================================================================
+# Usage: docker-compose -f docker-compose-examples.yaml run --rm photosort-sync
+# Runs once and exits (useful for cron jobs or manual syncs)
+# ==============================================================================
+version: '3.8'
+
+services:
+  photosort-sync:
+    image: photosort:latest
+    container_name: photosort-sync
+
+    volumes:
+      - /path/to/your/photos:/photos
+
+    configs:
+      - source: sync_config
+        target: /etc/photosort.yml
+
+    command: ["photosort", "--config", "/etc/photosort.yml", "sync"]
+
+    environment:
+      - TZ=Europe/Madrid
+
+    # Don't restart - run once and exit
+    restart: "no"
+
+configs:
+  sync_config:
+    content: |
+      sources:
+        inbox:
+          dir: '/photos/inbox'
+
+      output:
+        dir: '/photos/sorted'
+        dir_pattern: "%(year)d/%(year)04d_%(month)02d_%(day)02d"
+        file_prefix: ""
+        duplicates_dir: 'duplicates'
+        chmod: '0o774'
+        log_file: 'photosort.log'
+        db_file: 'photosort.db'
+
+---
+# ==============================================================================
+# EXAMPLE 5: Debug mode with verbose logging
+# ==============================================================================
+# Usage: docker-compose -f docker-compose-examples.yaml up photosort-debug
+# Runs with debug logging enabled
+# ==============================================================================
+version: '3.8'
+
+services:
+  photosort-debug:
+    image: photosort:latest
+    container_name: photosort-debug
+    restart: unless-stopped
+
+    volumes:
+      - /path/to/your/photos:/photos
+      # Mount log file to host for easy access
+      - ./logs:/photos/sorted/logs
+
+    configs:
+      - source: debug_config
+        target: /etc/photosort.yml
+
+    # Enable debug mode
+    command: ["photosort", "--config", "/etc/photosort.yml", "--debug", "monitor"]
+
+    environment:
+      - TZ=Europe/Madrid
+
+configs:
+  debug_config:
+    content: |
+      sources:
+        inbox:
+          dir: '/photos/inbox'
+
+      output:
+        dir: '/photos/sorted'
+        dir_pattern: "%(year)d/%(year)04d_%(month)02d_%(day)02d"
+        file_prefix: "%(year)d%(month)02d%(day)02d%(hour)02d%(minute)02d%(second)02d_"
+        duplicates_dir: 'duplicates'
+        chmod: '0o774'
+        log_file: 'logs/photosort.log'
+        db_file: 'photosort.db'
+
+---
+# ==============================================================================
+# EXAMPLE 6: Production deployment with healthcheck
+# ==============================================================================
+# Usage: docker-compose -f docker-compose-examples.yaml up photosort-production
+# Includes healthcheck, resource limits, and proper logging
+# ==============================================================================
+version: '3.8'
+
+services:
+  photosort-production:
+    image: photosort:latest
+    container_name: photosort-production
+    restart: unless-stopped
+
+    volumes:
+      - /mnt/photos:/photos
+      - photosort-logs:/photos/sorted/logs
+      - photosort-db:/photos/sorted/db
+
+    configs:
+      - source: production_config
+        target: /etc/photosort.yml
+
+    command: ["photosort", "--config", "/etc/photosort.yml", "monitor"]
+
+    environment:
+      - TZ=Europe/Madrid
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+    # Health check (checks if process is running)
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "photosort"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  photosort-logs:
+  photosort-db:
+
+configs:
+  production_config:
+    content: |
+      sources:
+        inbox:
+          dir: '/photos/inbox'
+
+      output:
+        dir: '/photos/sorted'
+        dir_pattern: "%(year)d/%(year)04d_%(month)02d_%(day)02d"
+        file_prefix: "%(year)d%(month)02d%(day)02d%(hour)02d%(minute)02d%(second)02d_"
+        duplicates_dir: 'duplicates'
+        chmod: '0o774'
+        log_file: 'logs/photosort.log'
+        db_file: 'db/photosort.db'
