@@ -31,39 +31,14 @@ services:
 
     # Run in monitor mode (continuously watches for new photos every 10 seconds)
     # Other options: 'sync' (one-time), 'rebuilddb' (rebuild database)
-    command: ["photosort", "--config", "/etc/photosort.yml", "monitor"]
+    command: ["--config", "/etc/photosort.yml", "monitor"]
 
     environment:
       # Set your timezone
       - TZ=Europe/Madrid
 
     # Optional: Enable debug logging (uncomment to activate)
-    # command: ["photosort", "--config", "/etc/photosort.yml", "--debug", "monitor"]
-
-    # Resource limits (optional, adjust as needed)
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-
-    # Health check (ensures container is running properly)
-    healthcheck:
-      test: ["CMD", "pgrep", "-f", "photosort"]
-      interval: 60s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-
-    # Logging configuration
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    # command: ["--config", "/etc/photosort.yml", "--debug", "monitor"]
 
 configs:
   photosort_config:

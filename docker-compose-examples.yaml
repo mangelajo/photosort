@@ -22,7 +22,7 @@ services:
       # External config file
       - ./photosort-config.yaml:/etc/photosort.yml:ro
 
-    command: ["photosort", "--config", "/etc/photosort.yml", "monitor"]
+    command: ["--config", "/etc/photosort.yml", "monitor"]
 
     environment:
       - TZ=Europe/Madrid
@@ -50,7 +50,7 @@ services:
       - source: photosort_config
         target: /etc/photosort.yml
 
-    command: ["photosort", "--config", "/etc/photosort.yml", "monitor"]
+    command: ["--config", "/etc/photosort.yml", "monitor"]
 
     environment:
       - TZ=Europe/Madrid
@@ -101,7 +101,7 @@ services:
       - source: multisource_config
         target: /etc/photosort.yml
 
-    command: ["photosort", "--config", "/etc/photosort.yml", "monitor"]
+    command: ["--config", "/etc/photosort.yml", "monitor"]
 
     environment:
       - TZ=Europe/Madrid
@@ -150,7 +150,7 @@ services:
       - source: sync_config
         target: /etc/photosort.yml
 
-    command: ["photosort", "--config", "/etc/photosort.yml", "sync"]
+    command: ["--config", "/etc/photosort.yml", "sync"]
 
     environment:
       - TZ=Europe/Madrid
@@ -202,7 +202,7 @@ services:
         target: /etc/photosort.yml
 
     # Enable debug mode
-    command: ["photosort", "--config", "/etc/photosort.yml", "--debug", "monitor"]
+    command: ["--config", "/etc/photosort.yml", "--debug", "monitor"]
 
     environment:
       - TZ=Europe/Madrid
@@ -250,7 +250,7 @@ services:
       - source: production_config
         target: /etc/photosort.yml
 
-    command: ["photosort", "--config", "/etc/photosort.yml", "monitor"]
+    command: ["--config", "/etc/photosort.yml", "monitor"]
 
     environment:
       - TZ=Europe/Madrid

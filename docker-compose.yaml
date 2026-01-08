@@ -18,7 +18,7 @@ services:
         read_only: true
 
     # Run in monitor mode to continuously watch for new photos
-    command: ["--debug", "--config", "/etc/photosort.yml", "monitor"]
+    command: ["--config", "/etc/photosort.yml", "--debug", "monitor"]
 
     # Optional: Set timezone
     environment:
@@ -47,7 +47,7 @@ services:
       - source: photosort_config
         target: /etc/photosort.yml
 
-    command: ["--debug", "--config", "/etc/photosort.yml", "monitor"]
+    command: ["--config", "/etc/photosort.yml", "--debug", "monitor"]
 
     environment:
       - TZ=Europe/Madrid
