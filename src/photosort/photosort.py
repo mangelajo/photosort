@@ -39,12 +39,29 @@ class PhotoSort:
         self._file_mode = self._config.output_chmod()
 
     def _setup_logging(self, log_level):
+        # Configure root logger
+        root_logger = logging.getLogger()
+        root_logger.setLevel(log_level)
+
+        # Create formatter
+        formatter = logging.Formatter(
+            '%(asctime)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+
+        # Always add console handler when in debug mode or no log file specified
+        if log_level == logging.DEBUG or not self._config.log_file():
+            console_handler = logging.StreamHandler(sys.stderr)
+            console_handler.setLevel(log_level)
+            console_handler.setFormatter(formatter)
+            root_logger.addHandler(console_handler)
+
+        # Add file handler if log file is specified
         if self._config.log_file():
-            logging.basicConfig(filename=self._config.log_file(),
-                                level=log_level)
-        else:
-            logging.basicConfig(stream=sys.stderr,
-                                level=log_level)
+            file_handler = logging.FileHandler(self._config.log_file())
+            file_handler.setLevel(log_level)
+            file_handler.setFormatter(formatter)
+            root_logger.addHandler(file_handler)
 
     def _sync_source(self, src_dir):
         try:
