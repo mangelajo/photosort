@@ -66,6 +66,8 @@ configs:
         file_prefix: "%(year)d%(month)02d%(day)02d%(hour)02d%(minute)02d%(second)02d_"
         duplicates_dir: 'duplicates'
         chmod: '0o774'
+        chmod_dirs: '0o775'
+        log_to_stderr: true
         log_file: 'photosort.log'
         db_file: 'photosort.db'
 
@@ -118,6 +120,8 @@ configs:
         file_prefix: "%(year)d%(month)02d%(day)02d%(hour)02d%(minute)02d%(second)02d_"
         duplicates_dir: 'duplicates'
         chmod: '0o774'
+        chmod_dirs: '0o775'
+        log_to_stderr: true
         log_file: 'photosort.log'
         db_file: 'photosort.db'
 
@@ -163,6 +167,8 @@ configs:
         file_prefix: ""
         duplicates_dir: 'duplicates'
         chmod: '0o774'
+        chmod_dirs: '0o775'
+        log_to_stderr: true
         log_file: 'photosort.log'
         db_file: 'photosort.db'
 
@@ -209,6 +215,8 @@ configs:
         file_prefix: "%(year)d%(month)02d%(day)02d%(hour)02d%(minute)02d%(second)02d_"
         duplicates_dir: 'duplicates'
         chmod: '0o774'
+        chmod_dirs: '0o775'
+        log_to_stderr: true
         log_file: 'logs/photosort.log'
         db_file: 'photosort.db'
 
@@ -283,5 +291,7 @@ configs:
         file_prefix: "%(year)d%(month)02d%(day)02d%(hour)02d%(minute)02d%(second)02d_"
         duplicates_dir: 'duplicates'
         chmod: '0o774'
+        chmod_dirs: '0o775'
+        log_to_stderr: true
         log_file: 'logs/photosort.log'
         db_file: 'db/photosort.db'
