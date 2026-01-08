@@ -155,7 +155,23 @@ YAML config with two main sections:
 - `sources`: Dictionary of input directories to watch
 - `output`: Target directory, patterns, duplicates handling, permissions, logging
 
+**Output section options:**
+- `dir`: Output directory for organized photos
+- `dir_pattern`: Directory organization pattern (e.g., `%(year)d/%(year)04d_%(month)02d_%(day)02d`)
+- `file_prefix`: Optional filename prefix (e.g., `%(year)d%(month)02d%(day)02d_`)
+- `duplicates_dir`: Directory for duplicate files
+- `chmod`: File permissions in octal format (e.g., `0o774`)
+- `log_file`: Path to log file (optional)
+- `log_to_stderr`: Log to console/stderr in addition to file (default: `true`, optional)
+- `db_file`: Path to CSV database file
+
 Pattern variables: `%(year)d`, `%(month)02d`, `%(day)02d`, `%(hour)02d`, `%(minute)02d`, `%(second)02d`
+
+**Logging behavior:**
+- If `log_to_stderr` is `true` (default): logs to both console and file
+- If `log_to_stderr` is `false`: logs only to file (or console if no log file)
+- In `--debug` mode: always logs to console regardless of config
+- Useful for Docker deployments where you want logs in `docker logs` output
 
 ### Test Organization
 

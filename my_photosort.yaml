@@ -10,6 +10,7 @@ output:
   duplicates_dir: 'duplicates'
   chmod: 0o774
   log_file: 'photosort.log'
+  log_to_stderr: true  # Also log to stderr/console (default: true)
   db_file: 'photosort.db'
 
 

@@ -69,3 +69,13 @@ class Config:
 
     def output_chmod(self):
         return int(self._data['output']['chmod'], 8)  # octal conversion
+
+    def log_to_stderr(self):
+        """
+        Returns whether to log to stderr in addition to log file.
+        Defaults to True if not specified.
+        """
+        if 'log_to_stderr' in self._data['output']:
+            return bool(self._data['output']['log_to_stderr'])
+        else:
+            return True  # Default to True for backward compatibility

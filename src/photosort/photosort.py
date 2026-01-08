@@ -49,8 +49,18 @@ class PhotoSort:
             datefmt='%Y-%m-%d %H:%M:%S'
         )
 
-        # Always add console handler when in debug mode or no log file specified
-        if log_level == logging.DEBUG or not self._config.log_file():
+        # Add console handler based on config or debug mode
+        # Console logging is enabled when:
+        # 1. In debug mode, OR
+        # 2. No log file is specified, OR
+        # 3. log_to_stderr is explicitly enabled in config (defaults to True)
+        should_log_to_stderr = (
+            log_level == logging.DEBUG or
+            not self._config.log_file() or
+            self._config.log_to_stderr()
+        )
+
+        if should_log_to_stderr:
             console_handler = logging.StreamHandler(sys.stderr)
             console_handler.setLevel(log_level)
             console_handler.setFormatter(formatter)
