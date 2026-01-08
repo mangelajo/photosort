@@ -20,8 +20,44 @@ build-backend = "hatchling.build"
 [tool.uv]
 dev-dependencies = [
     "pytest>=8.3.2",
+    "pytest-cov>=6.0.0",
     "mock>=5.1.0",
     "setuptools>=73.0.1",
     "twine>=5.1.1",
     "build>=1.2.1",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["src/photosort/test"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+]
+
+[tool.coverage.run]
+source = ["src/photosort"]
+omit = [
+    "*/test/*",
+    "*/test.py",
+]
+branch = true
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if False:",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"

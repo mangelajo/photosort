@@ -46,6 +46,29 @@ uv run pytest -v
 
 **Note**: Tests require `exiftool` to be installed on the system. On Ubuntu/Debian: `sudo apt-get install exiftool`, on macOS: `brew install exiftool`.
 
+### Coverage Reporting
+```bash
+# Run tests with coverage report
+uv run pytest --cov
+
+# Run tests with detailed coverage showing missing lines
+uv run pytest --cov --cov-report=term-missing
+
+# Generate HTML coverage report
+uv run pytest --cov --cov-report=html
+# Open htmlcov/index.html in browser to view
+
+# Generate XML coverage report (for CI/CD)
+uv run pytest --cov --cov-report=xml
+```
+
+**Coverage configuration:**
+- Source code coverage tracked in `src/photosort/`
+- Test files excluded from coverage
+- Branch coverage enabled
+- HTML reports generated in `htmlcov/` directory
+- Current coverage: ~77% (as of test suite expansion)
+
 ### Distribution
 ```bash
 make distribute

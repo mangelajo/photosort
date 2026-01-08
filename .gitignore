@@ -5,3 +5,7 @@
 build/
 dist/
 photosort.egg-info/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
