@@ -193,15 +193,24 @@ class MediaFile:
         return self._file_type
 
     def makedirs_f(self, path, mode):
-        paths = os.path.split(path)
+        """Create directory hierarchy with specified mode.
 
-        total_path = ''
-        for directory in paths:
-            total_path = os.path.join(total_path, directory)
-            if os.path.isdir(total_path):
-                continue
-
-            os.mkdir(total_path, mode | stat.S_IXUSR)
+        Creates all intermediate directories with the specified mode plus
+        execute permission. This ensures consistent permissions across the
+        entire directory tree, unlike os.makedirs which may not apply mode
+        to intermediate directories on all platforms.
+        """
+        try:
+            os.makedirs(path, mode=(mode | stat.S_IXUSR), exist_ok=True)
+        except OSError:
+            # Fall back to manual creation if makedirs fails
+            paths = os.path.split(path)
+            total_path = ''
+            for directory in paths:
+                total_path = os.path.join(total_path, directory)
+                if os.path.isdir(total_path):
+                    continue
+                os.mkdir(total_path, mode | stat.S_IXUSR)
 
     def rename_as(self, new_filename, file_mode=0o774):
 
