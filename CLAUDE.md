@@ -160,16 +160,55 @@ Pattern variables: `%(year)d`, `%(month)02d`, `%(day)02d`, `%(hour)02d`, `%(minu
 ### Test Organization
 
 Tests located in `src/photosort/test/testcases/`:
-- `test_001_walk_for_media.py` - Directory traversal tests
-- `test_002_exif_media.py` - EXIF extraction and media handling tests
-- `test_003_noexif_media.py` - Files without EXIF data handling
+- `test_001_walk_for_media.py` - Directory traversal and file discovery (19 tests)
+- `test_002_exif_media.py` - EXIF extraction and media handling (10 tests)
+- `test_003_noexif_media.py` - Files without EXIF data handling (2 tests)
+- `test_004_config.py` - YAML configuration parsing (20 tests)
+- `test_005_photodb.py` - CSV database operations (20 tests)
+- `test_006_photosort_integration.py` - End-to-end workflow tests (15 tests)
 
 **Test infrastructure**:
 - Base test class: `photosort.test.TestCase` (extends `unittest.TestCase`)
 - Test data: Located in `src/photosort/test/data/` with `media1/` and `media2/` subdirectories
 - Helper method: `self.get_data_path('media1')` returns path to test data
 - Temp directories: Auto-created via `self._temp_dir` in `setUp()`
-- Uses `mock` library to patch file readiness checks in CI environments
+- Uses `mock` library to patch time-sensitive checks in CI environments
+
+### Testing Philosophy and Best Practices
+
+**Behavior Testing vs Implementation Testing:**
+- Focus on testing behavior and outcomes, not implementation details
+- Test what the code does, not how it does it
+- Example: Test that a file is moved to the correct destination, not the internal steps of the move operation
+
+**Mocking Strategy:**
+- Mock external dependencies: file system time checks, remote services, system clocks
+- Don't mock internal application logic
+- Use `mock.patch()` for time-sensitive operations (`_file_is_ready` 30-second check)
+- Integration tests use real file operations with mocked time checks for speed
+
+**Test Data Management:**
+- Use real media files in `src/photosort/test/data/` for authentic EXIF testing
+- Create temporary files in `self._temp_dir` for isolation
+- Set file modification times explicitly to bypass time-based safety checks
+- Clean up is automatic via `unittest.TestCase` cleanup handlers
+
+**Coverage Interpretation:**
+- Target: >75% coverage for core modules (config, photodb, media, walk)
+- Lower coverage acceptable for: CLI entry points, error handling paths
+- Branch coverage enabled to catch untested conditional paths
+- Missing lines often indicate edge cases or error paths worth testing
+
+**Test Naming:**
+- Use descriptive names: `test_duplicate_detection_and_movement` not `test_dup`
+- Include docstrings explaining what behavior is being tested
+- Group related tests in the same file
+
+**Avoiding Common Pitfalls:**
+- Don't test library internals (e.g., testing that `yaml.safe_load` works)
+- Don't over-mock: only mock what's necessary for test isolation
+- Avoid testing implementation details that may change
+- Don't create brittle tests tied to exact log messages or internal state
 
 ## Project Management
 
