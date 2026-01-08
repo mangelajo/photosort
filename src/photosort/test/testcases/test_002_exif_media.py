@@ -363,6 +363,87 @@ class TestExifMedia(test.TestCase):
         self.assertGreater(dt.year, 2000)
         self.assertLessEqual(dt.year, datetime.datetime.now().year)
 
+    def test_datetime_file_uses_oldest_timestamp(self):
+        """Test that datetime_file() uses min(mtime, ctime)"""
+        import datetime
+        import time
+        import tempfile
+
+        # Create a test file in temp directory
+        fd, test_file = tempfile.mkstemp(dir=self._temp_dir, suffix='.jpg')
+        os.close(fd)
+
+        # Get initial mtime and ctime
+        stat1 = os.stat(test_file)
+        initial_mtime = stat1.st_mtime
+        initial_ctime = stat1.st_ctime
+
+        # Sleep a bit to ensure time difference
+        time.sleep(0.1)
+
+        # Modify the file to update mtime (but not ctime on most systems)
+        with open(test_file, 'w') as f:
+            f.write("test data")
+
+        # Create MediaFile and get datetime_file
+        mf = media.MediaFile.build_for(test_file)
+        dt = mf.datetime_file()
+
+        # The datetime should be based on the minimum of mtime/ctime
+        stat2 = os.stat(test_file)
+        expected_timestamp = min(stat2.st_mtime, stat2.st_ctime)
+        expected_dt = datetime.datetime.fromtimestamp(expected_timestamp)
+
+        # They should be very close (within 1 second due to precision)
+        time_diff = abs((dt - expected_dt).total_seconds())
+        self.assertLess(time_diff, 1.0)
+
+    def test_datetime_with_fallback_enabled_no_exif(self):
+        """Test datetime() with fallback_to_file_date=True for file without EXIF"""
+        import datetime
+        import tempfile
+
+        # Create a file without EXIF data
+        fd, test_file = tempfile.mkstemp(dir=self._temp_dir, suffix='.jpg')
+        with os.fdopen(fd, 'w') as f:
+            f.write("fake image without exif")
+
+        mf = media.MediaFile.build_for(test_file)
+
+        # Without fallback, should raise UnknownDatetime
+        with self.assertRaises(media.UnknownDatetime):
+            mf.datetime(fallback_to_file_date=False)
+
+        # With fallback, should return file timestamp
+        dt = mf.datetime(fallback_to_file_date=True)
+        self.assertIsInstance(dt, datetime.datetime)
+        self.assertGreater(dt.year, 2000)
+
+    def test_datetime_with_fallback_enabled_has_exif(self):
+        """Test datetime() with fallback_to_file_date=True still uses EXIF when available"""
+        # When EXIF is available, it should be used regardless of fallback setting
+        dt_no_fallback = self.photo.datetime(fallback_to_file_date=False)
+        dt_with_fallback = self.photo.datetime(fallback_to_file_date=True)
+
+        # Both should return the same EXIF datetime
+        self.assertEqual(dt_no_fallback, dt_with_fallback)
+        self.assertEqual(str(dt_no_fallback), "2013-08-24 13:05:52")
+
+    def test_datetime_fallback_default_parameter(self):
+        """Test that fallback_to_file_date defaults to False"""
+        import tempfile
+
+        # Create a file without EXIF data
+        fd, test_file = tempfile.mkstemp(dir=self._temp_dir, suffix='.jpg')
+        with os.fdopen(fd, 'w') as f:
+            f.write("fake image without exif")
+
+        mf = media.MediaFile.build_for(test_file)
+
+        # Default behavior (no parameter) should raise UnknownDatetime
+        with self.assertRaises(media.UnknownDatetime):
+            mf.datetime()
+
 
 if __name__ == '__main__':
     test_main.main()

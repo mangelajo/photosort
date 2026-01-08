@@ -383,6 +383,105 @@ class TestConfig(test.TestCase):
 
         self.assertEqual(cfg.file_prefix(), '')
 
+    def test_fallback_to_file_date_default_false(self):
+        """Test that fallback_to_file_date defaults to False when not specified"""
+        config_data = {
+            'sources': {
+                'source1': {'dir': '/path/to/source1'}
+            },
+            'output': {
+                'dir': '/output',
+                'dir_pattern': '%(year)d',
+                'duplicates_dir': 'duplicates',
+                'db_file': 'photosort.db',
+                'chmod': '0o644'
+            }
+        }
+        config_path = self._create_config_file(config_data)
+        cfg = config.Config(config_path)
+
+        self.assertFalse(cfg.source_fallback_to_file_date('source1'))
+
+    def test_fallback_to_file_date_explicit_true(self):
+        """Test that fallback_to_file_date can be explicitly set to True"""
+        config_data = {
+            'sources': {
+                'source1': {'dir': '/path/to/source1', 'fallback_to_file_date': True}
+            },
+            'output': {
+                'dir': '/output',
+                'dir_pattern': '%(year)d',
+                'duplicates_dir': 'duplicates',
+                'db_file': 'photosort.db',
+                'chmod': '0o644'
+            }
+        }
+        config_path = self._create_config_file(config_data)
+        cfg = config.Config(config_path)
+
+        self.assertTrue(cfg.source_fallback_to_file_date('source1'))
+
+    def test_fallback_to_file_date_explicit_false(self):
+        """Test that fallback_to_file_date can be explicitly set to False"""
+        config_data = {
+            'sources': {
+                'source1': {'dir': '/path/to/source1', 'fallback_to_file_date': False}
+            },
+            'output': {
+                'dir': '/output',
+                'dir_pattern': '%(year)d',
+                'duplicates_dir': 'duplicates',
+                'db_file': 'photosort.db',
+                'chmod': '0o644'
+            }
+        }
+        config_path = self._create_config_file(config_data)
+        cfg = config.Config(config_path)
+
+        self.assertFalse(cfg.source_fallback_to_file_date('source1'))
+
+    def test_fallback_to_file_date_multiple_sources(self):
+        """Test that different sources can have different fallback settings"""
+        config_data = {
+            'sources': {
+                'source1': {'dir': '/path/to/source1', 'fallback_to_file_date': True},
+                'source2': {'dir': '/path/to/source2', 'fallback_to_file_date': False},
+                'source3': {'dir': '/path/to/source3'}  # Default: False
+            },
+            'output': {
+                'dir': '/output',
+                'dir_pattern': '%(year)d',
+                'duplicates_dir': 'duplicates',
+                'db_file': 'photosort.db',
+                'chmod': '0o644'
+            }
+        }
+        config_path = self._create_config_file(config_data)
+        cfg = config.Config(config_path)
+
+        self.assertTrue(cfg.source_fallback_to_file_date('source1'))
+        self.assertFalse(cfg.source_fallback_to_file_date('source2'))
+        self.assertFalse(cfg.source_fallback_to_file_date('source3'))
+
+    def test_fallback_to_file_date_nonexistent_source(self):
+        """Test that querying a nonexistent source returns False"""
+        config_data = {
+            'sources': {
+                'source1': {'dir': '/path/to/source1'}
+            },
+            'output': {
+                'dir': '/output',
+                'dir_pattern': '%(year)d',
+                'duplicates_dir': 'duplicates',
+                'db_file': 'photosort.db',
+                'chmod': '0o644'
+            }
+        }
+        config_path = self._create_config_file(config_data)
+        cfg = config.Config(config_path)
+
+        self.assertFalse(cfg.source_fallback_to_file_date('nonexistent'))
+
 
 if __name__ == '__main__':
     test.test.main()

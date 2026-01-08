@@ -28,6 +28,7 @@ class MediaFile:
         self._filename = filename
         self._file_type = MediaFile.guess_file_type(filename)
         self._hash = None
+        self._cached_datetime = None  # Cache datetime after first call
 
     @staticmethod
     def guess_file_type(filename):
@@ -156,6 +157,10 @@ class MediaFile:
         Raises:
             UnknownDatetime: When datetime cannot be determined
         """
+        # Return cached datetime if available
+        if self._cached_datetime is not None:
+            return self._cached_datetime
+
         dt = self._exif_datetime()
         logging.debug("date and time: %s", dt)
 
@@ -167,6 +172,8 @@ class MediaFile:
             else:
                 raise UnknownDatetime()
 
+        # Cache the datetime for future calls
+        self._cached_datetime = dt
         return dt
 
     def hash(self):

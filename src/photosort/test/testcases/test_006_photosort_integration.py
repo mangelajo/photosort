@@ -383,6 +383,99 @@ class TestPhotoSortIntegration(test.TestCase):
         # This test mainly ensures no errors during initialization
         self.assertIsNotNone(ps._config.log_file())
 
+    @mock.patch('photosort.walk.WalkForMedia._file_is_ready', return_value=True)
+    def test_sync_with_fallback_to_file_date(self, mock_ready):
+        """Test sync with fallback_to_file_date enabled processes files without EXIF"""
+        # Create a file without EXIF data in source1
+        test_file = os.path.join(self.source1_dir, 'screenshot.jpg')
+        with open(test_file, 'w') as f:
+            f.write("fake image without exif data")
+
+        # Configure source1 with fallback enabled
+        config_data = self._get_basic_config()
+        config_data['sources']['source1']['fallback_to_file_date'] = True
+
+        config_path = self._create_config_file(config_data)
+        ps = photosort.PhotoSort(config_path, log_level='INFO')
+
+        # Run sync
+        ps.sync()
+
+        # File should have been moved (not skipped)
+        self.assertFalse(os.path.exists(test_file))
+
+        # File should be in output directory organized by file timestamp
+        # Since we don't know exact timestamp, just verify it moved somewhere in output
+        moved_files = []
+        for root, dirs, files in os.walk(self.output_dir):
+            if 'duplicates' not in root:  # Exclude duplicates dir
+                for f in files:
+                    if f == 'screenshot.jpg':
+                        moved_files.append(os.path.join(root, f))
+
+        self.assertEqual(len(moved_files), 1, "File should be moved to output directory")
+
+    @mock.patch('photosort.walk.WalkForMedia._file_is_ready', return_value=True)
+    def test_sync_without_fallback_skips_no_exif(self, mock_ready):
+        """Test sync without fallback skips files without EXIF"""
+        # Create a file without EXIF data in source1
+        test_file = os.path.join(self.source1_dir, 'screenshot.jpg')
+        with open(test_file, 'w') as f:
+            f.write("fake image without exif data")
+
+        # Configure source1 with fallback disabled (default)
+        config_data = self._get_basic_config()
+        # Don't set fallback_to_file_date, defaults to False
+
+        config_path = self._create_config_file(config_data)
+        ps = photosort.PhotoSort(config_path, log_level='INFO')
+
+        # Run sync
+        ps.sync()
+
+        # File should still be in source (skipped)
+        self.assertTrue(os.path.exists(test_file))
+
+        # File should NOT be in output directory
+        moved_files = []
+        for root, dirs, files in os.walk(self.output_dir):
+            if 'duplicates' not in root:
+                for f in files:
+                    if f == 'screenshot.jpg':
+                        moved_files.append(os.path.join(root, f))
+
+        self.assertEqual(len(moved_files), 0, "File should not be moved")
+
+    @mock.patch('photosort.walk.WalkForMedia._file_is_ready', return_value=True)
+    def test_sync_with_mixed_fallback_settings(self, mock_ready):
+        """Test that different sources can have different fallback settings"""
+        # Create file without EXIF in source1 (fallback enabled)
+        test_file1 = os.path.join(self.source1_dir, 'screenshot1.jpg')
+        with open(test_file1, 'w') as f:
+            f.write("fake image without exif")
+
+        # Create file without EXIF in source2 (fallback disabled)
+        test_file2 = os.path.join(self.source2_dir, 'screenshot2.jpg')
+        with open(test_file2, 'w') as f:
+            f.write("fake image without exif")
+
+        # Configure with mixed settings
+        config_data = self._get_basic_config()
+        config_data['sources']['source1']['fallback_to_file_date'] = True
+        config_data['sources']['source2']['fallback_to_file_date'] = False
+
+        config_path = self._create_config_file(config_data)
+        ps = photosort.PhotoSort(config_path, log_level='INFO')
+
+        # Run sync
+        ps.sync()
+
+        # File from source1 should be moved (fallback enabled)
+        self.assertFalse(os.path.exists(test_file1))
+
+        # File from source2 should still be there (fallback disabled, skipped)
+        self.assertTrue(os.path.exists(test_file2))
+
 
 if __name__ == '__main__':
     test.test.main()
