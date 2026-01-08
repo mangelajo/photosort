@@ -70,7 +70,7 @@ class PhotoSort:
                 media_file.rename_as(duplicates_path, self._file_mode)
             else:
                 if media_file.move_to_directory_with_date(
-                        self._photodb._output_dir,
+                        self._config.output_dir(),
                         self._dir_pattern,
                         self._file_prefix,
                         self._file_mode):
