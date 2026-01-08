@@ -5,6 +5,7 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
+import logging
 import yaml
 
 
@@ -50,22 +51,21 @@ class Config:
             self._data['output']['duplicates_dir'])
 
     def dir_pattern(self):
-        try:
+        if 'dir_pattern' in self._data['output']:
             return self._data['output']['dir_pattern']
-        except KeyError as exc:
-            if str(exc) == "'dir_pattern'":
-                return self._data['output']['pattern']
-            else:
-                raise
+        elif 'pattern' in self._data['output']:
+            logging.warning(
+                "Config key 'output.pattern' is deprecated, "
+                "use 'output.dir_pattern' instead")
+            return self._data['output']['pattern']
+        else:
+            raise KeyError('dir_pattern')
 
     def file_prefix(self):
-        try:
+        if 'file_prefix' in self._data['output']:
             return self._data['output']['file_prefix']
-        except KeyError as exc:
-            if str(exc) == "'file_prefix'":
-                return ""
-            else:
-                raise
+        else:
+            return ""
 
     def output_chmod(self):
         return int(self._data['output']['chmod'], 8)  # octal conversion
