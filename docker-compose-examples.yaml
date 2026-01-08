@@ -12,6 +12,7 @@ version: '3.8'
 services:
   photosort-simple:
     image: photosort:latest
+    pull_policy: always
     container_name: photosort-simple
     restart: unless-stopped
 
@@ -38,6 +39,7 @@ version: '3.8'
 services:
   photosort-inline:
     image: photosort:latest
+    pull_policy: always
     container_name: photosort-inline
     restart: unless-stopped
 
@@ -83,6 +85,7 @@ version: '3.8'
 services:
   photosort-multisource:
     image: photosort:latest
+    pull_policy: always
     container_name: photosort-multisource
     restart: unless-stopped
 
@@ -137,6 +140,7 @@ version: '3.8'
 services:
   photosort-sync:
     image: photosort:latest
+    pull_policy: always
     container_name: photosort-sync
 
     volumes:
@@ -184,6 +188,7 @@ version: '3.8'
 services:
   photosort-debug:
     image: photosort:latest
+    pull_policy: always
     container_name: photosort-debug
     restart: unless-stopped
 
@@ -232,6 +237,7 @@ version: '3.8'
 services:
   photosort-production:
     image: photosort:latest
+    pull_policy: always
     container_name: photosort-production
     restart: unless-stopped
 

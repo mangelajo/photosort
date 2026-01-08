@@ -3,6 +3,7 @@ version: '3.8'
 services:
   photosort:
     image: quay.io/mangelajo/photosort:latest
+    pull_policy: always
     container_name: photosort
     restart: unless-stopped
 
@@ -35,6 +36,7 @@ version: '3.8'
 services:
   photosort-with-inline-config:
     image: quay.io/mangelajo/photosort:latest
+    pull_policy: always
     container_name: photosort-monitor
     restart: unless-stopped
 

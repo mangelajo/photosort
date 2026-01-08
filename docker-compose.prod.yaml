@@ -8,12 +8,16 @@
 #   2. Run: docker-compose -f docker-compose.prod.yaml up -d
 #   3. Check logs: docker-compose -f docker-compose.prod.yaml logs -f
 #   4. Stop: docker-compose -f docker-compose.prod.yaml down
+#
+# Note: pull_policy: always ensures the latest image is always pulled
+#       before starting the container (useful for :latest tag)
 
 version: '3.8'
 
 services:
   photosort:
     image: quay.io/mangelajo/photosort:latest
+    pull_policy: always
     container_name: photosort
     restart: unless-stopped
 
