@@ -155,6 +155,10 @@ YAML config with two main sections:
 - `sources`: Dictionary of input directories to watch
 - `output`: Target directory, patterns, duplicates handling, permissions, logging
 
+**Source section options (per source):**
+- `dir`: Input directory path to watch for media files
+- `fallback_to_file_date`: Use file modification time when EXIF datetime is unavailable (default: `false`, optional)
+
 **Output section options:**
 - `dir`: Output directory for organized photos
 - `dir_pattern`: Directory organization pattern (e.g., `%(year)d/%(year)04d_%(month)02d_%(day)02d`)
@@ -277,6 +281,18 @@ Tries tags in order until one is found (media.py:81-91):
 10. `CreateDate`
 
 Files with datetime `'0000:00:00 00:00:00'` are treated as having no datetime.
+
+### Datetime Fallback Strategy
+When `fallback_to_file_date: true` is set for a source:
+- If EXIF datetime is not available or is `'0000:00:00 00:00:00'`, use file modification time
+- Uses `min(mtime, ctime)` to get earliest timestamp (handles platform differences)
+- Logs when fallback is used: `"using file modification time for <path>: <datetime>"`
+- If `fallback_to_file_date: false` (default), files without EXIF are skipped with error log
+
+This is useful for sources containing:
+- Screenshots or screen recordings without EXIF data
+- Edited images that lost their metadata
+- Files from apps that don't embed EXIF timestamps
 
 ### Tagged Directory Support
 When organizing files, `locate_output_directory()` (media.py:230) checks if a directory matching the date pattern exists with a user-added suffix (e.g., `2024_01_15_Birthday Party` matches pattern `2024_01_15`). This allows users to tag directories without breaking the organization.

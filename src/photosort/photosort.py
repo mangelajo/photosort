@@ -74,19 +74,21 @@ class PhotoSort:
             file_handler.setFormatter(formatter)
             root_logger.addHandler(file_handler)
 
-    def _sync_source(self, src_dir):
+    def _sync_source(self, src_dir, source_name):
         try:
             walker = walk.WalkForMedia(src_dir)
         except IOError:
             logging.error("Unable to walk dir %s", src_dir)
             return
 
+        fallback_to_file_date = self._config.source_fallback_to_file_date(source_name)
+
         for file_dir, file_name in walker.find_media():
             file_path = os.path.join(file_dir, file_name)
             media_file = media.MediaFile.build_for(file_path)
 
             try:
-                media_file.datetime()
+                media_file.datetime(fallback_to_file_date=fallback_to_file_date)
             except media.UnknownDatetime:
                 logging.error("skipping %s, no date found from EXIF",
                               file_path)
@@ -133,7 +135,7 @@ class PhotoSort:
         ensures that the media files of the input directories are sorted
         """
         for source, value in self._config.sources().items():
-            self._sync_source(value['dir'])
+            self._sync_source(value['dir'], source)
 
     def monitor(self):
         """

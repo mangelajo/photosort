@@ -2,6 +2,7 @@
 sources:
   nasinbox:
     dir: '/Volumes/Fotos/inbox'
+    fallback_to_file_date: false  # Use file mtime/ctime when no EXIF datetime (default: false)
 
 output:
   dir: '/Volumes/Fotos'

@@ -143,11 +143,29 @@ class MediaFile:
             return datetime.datetime.strptime(str(exif_datetime_str),
                                               '%Y:%m:%d %H:%M:%S%z')
 
-    def datetime(self):
+    def datetime(self, fallback_to_file_date=False):
+        """
+        Get the datetime for this media file.
+
+        Args:
+            fallback_to_file_date: If True, use file modification time when EXIF is unavailable
+
+        Returns:
+            datetime object
+
+        Raises:
+            UnknownDatetime: When datetime cannot be determined
+        """
         dt = self._exif_datetime()
         logging.debug("date and time: %s", dt)
+
         if dt is None:
-            raise UnknownDatetime()
+            if fallback_to_file_date:
+                dt = self.datetime_file()
+                logging.info("using file modification time for %s: %s",
+                           self._filename, dt)
+            else:
+                raise UnknownDatetime()
 
         return dt
 

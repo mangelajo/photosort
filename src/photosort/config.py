@@ -92,3 +92,12 @@ class Config:
             return bool(self._data['output']['log_to_stderr'])
         else:
             return True  # Default to True for backward compatibility
+
+    def source_fallback_to_file_date(self, source_name):
+        """
+        Returns whether a source should fallback to file modification time
+        when EXIF datetime is not available.
+        Defaults to False if not specified.
+        """
+        source = self._data['sources'].get(source_name, {})
+        return source.get('fallback_to_file_date', False)
