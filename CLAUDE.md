@@ -15,9 +15,13 @@ PhotoSort is a Python CLI tool that simplifies photo inbox management. It watche
 # Install uv package manager (if not installed)
 make install-uv
 
-# Sync dependencies
+# Sync dependencies (core + dev dependencies)
 make sync
 # or directly: uv sync
+
+# Sync dependencies including YOLO (for development)
+make sync-yolo
+# This installs core, dev, and YOLO dependencies (ultralytics, torch, opencv-python)
 ```
 
 ### Testing
@@ -83,12 +87,23 @@ uv run photosort --config my_photosort.yaml rebuilddb
 uv run photosort --config my_photosort.yaml monitor
 uv run photosort --config my_photosort.yaml version
 
+# Add YOLO object detection tags to existing photos
+uv run photosort --config my_photosort.yaml add-yolo-tags
+
+# YOLO tagging with options
+uv run photosort --config my_photosort.yaml add-yolo-tags --dry-run      # Preview without writing
+uv run photosort --config my_photosort.yaml add-yolo-tags --interactive  # Show visualization
+
 # Enable debug logging
 uv run photosort --config my_photosort.yaml --debug sync
 
 # Or install and run directly
 pip3 install photosort
 photosort --config /path/to/config.yml sync
+
+# Install with YOLO support
+pip3 install photosort[yolo]
+photosort --config /path/to/config.yml add-yolo-tags
 ```
 
 **Config file reference**: See `etc/photosort.yml` or `my_photosort.yaml` for example configurations.
@@ -99,7 +114,7 @@ photosort --config /path/to/config.yml sync
 
 **photosort.py** - Main entry point with `PhotoSort` class orchestrating the workflow:
 - Initializes config, logging, and database
-- Provides three main operations: `sync`, `rebuilddb`, `monitor`
+- Provides main operations: `sync`, `rebuilddb`, `monitor`, `add-yolo-tags`
 - Coordinates between walker, media files, and database
 
 **config.py** - YAML configuration parser (`Config` class):
@@ -132,6 +147,14 @@ photosort --config /path/to/config.yml sync
 - Maintains a background batch process for performance (`ExifToolHelper`)
 - Must call `exif.start()` before use (done in `main()`)
 
+**yolo_tagger.py** - YOLO11 object detection and tagging (optional):
+- Detects objects in photos using YOLO11 models
+- Stores ONLY object class names (e.g., 'cat', 'dog', 'person') in EXIF Keywords
+- Does NOT store bounding boxes or coordinate data
+- Supports interactive visualization with cv2.imshow
+- Device auto-detection (MPS/CUDA/CPU) handled by ultralytics
+- Requires optional dependencies: `pip install photosort[yolo]`
+
 ### Data Flow
 
 **Initial Setup (rebuilddb operation)**:
@@ -148,6 +171,13 @@ photosort --config /path/to/config.yml sync
 6. **Update DB**: `PhotoDB.add_to_db()` → `PhotoDB.write()` persists to CSV
 
 **Monitor Operation**: Runs sync in infinite loop with 10-second sleep between iterations
+
+**Add YOLO Tags Operation**:
+1. `PhotoSort.add_yolo_tags()` → `WalkForMedia.find_media()` → yields photo files
+2. **For each photo**: Load image → run YOLO inference → extract object class names
+3. **Write tags**: Store class names (e.g., 'cat', 'dog') as EXIF Keywords using exiftool
+4. **Optional visualization**: Display annotated image with cv2.imshow if `--interactive` flag set
+5. **Report summary**: Total processed, tagged, and any errors
 
 ### Configuration Structure
 
@@ -184,6 +214,28 @@ Pattern variables: `%(year)d`, `%(month)02d`, `%(day)02d`, `%(hour)02d`, `%(minu
 - In `--debug` mode: always logs to console regardless of config
 - Useful for Docker deployments where you want logs in `docker logs` output
 
+**YOLO section options (optional):**
+- `model`: YOLO model to use (default: `yolo11x.pt`) - auto-downloads if not found
+- `confidence`: Detection confidence threshold 0.0-1.0 (default: `0.25`)
+- `imgsz`: Image size for inference (default: `640`)
+- `interactive`: Show cv2 visualization window (default: `false`)
+
+Example YOLO configuration:
+```yaml
+yolo:
+  model: 'yolo11x.pt'    # or yolo11n.pt, yolo11s.pt, yolo11m.pt, yolo11l.pt
+  confidence: 0.25       # higher = fewer but more confident detections
+  imgsz: 640            # larger = more accurate but slower
+  interactive: false     # true = show detection visualization
+```
+
+**YOLO model size tradeoffs:**
+- `yolo11n.pt` (nano): Fastest, smallest, least accurate (~6MB)
+- `yolo11s.pt` (small): Good balance (~19MB)
+- `yolo11m.pt` (medium): Better accuracy (~40MB)
+- `yolo11l.pt` (large): High accuracy (~51MB)
+- `yolo11x.pt` (extra large): Best accuracy, slowest (~115MB) - **default**
+
 ### Test Organization
 
 Tests located in `src/photosort/test/testcases/`:
@@ -191,6 +243,10 @@ Tests located in `src/photosort/test/testcases/`:
 - `test_002_exif_media.py` - EXIF extraction and media handling (10 tests)
 - `test_003_noexif_media.py` - Files without EXIF data handling (2 tests)
 - `test_004_config.py` - YAML configuration parsing (20 tests)
+- `test_005_photodb.py` - CSV database operations (20 tests)
+- `test_006_photosort_integration.py` - End-to-end workflow tests (15 tests)
+- `test_007_yolo_tagger.py` - YOLO object detection tests (requires YOLO dependencies)
+- `test_008_yolo_integration.py` - YOLO tagging integration tests (requires YOLO dependencies)
 - `test_005_photodb.py` - CSV database operations (20 tests)
 - `test_006_photosort_integration.py` - End-to-end workflow tests (15 tests)
 
@@ -311,3 +367,140 @@ CSV with columns: `directory, filename, type, md5`
 - Defaults to stderr if no `log_file` specified in config
 - Uses Python's standard logging module with INFO level (DEBUG with `--debug` flag)
 - Critical operations log to `CRITICAL` level
+
+## YOLO Object Detection Feature
+
+PhotoSort can automatically tag photos with detected objects using YOLO11 (You Only Look Once) object detection models.
+
+### Installation
+
+YOLO dependencies are optional. Install with:
+```bash
+pip install photosort[yolo]
+# or
+pip install ultralytics torch opencv-python
+```
+
+For development:
+```bash
+uv sync  # installs all dependencies including YOLO
+```
+
+### Usage
+
+Tag all photos in your output directory:
+```bash
+photosort --config config.yml add-yolo-tags
+```
+
+Preview tags without writing to EXIF:
+```bash
+photosort --config config.yml add-yolo-tags --dry-run
+```
+
+Show visualization window for each detection (requires display):
+```bash
+photosort --config config.yml add-yolo-tags --interactive
+```
+
+### What Gets Stored
+
+**IMPORTANT**: PhotoSort stores ONLY object class names (e.g., 'cat', 'dog', 'person', 'car') in the EXIF Keywords field. It does NOT store:
+- Bounding box coordinates
+- Object locations or positions
+- Confidence scores
+- Any other detection metadata
+
+This keeps EXIF data clean and focused on searchability. Tags are written to the `IPTC:Keywords` field using exiftool.
+
+### Configuration
+
+Add a `yolo` section to your config file:
+```yaml
+yolo:
+  model: 'yolo11x.pt'    # Model to use (see options below)
+  confidence: 0.25       # Detection threshold (0.0-1.0)
+  imgsz: 640            # Inference image size
+  interactive: false     # Show cv2 visualization window
+```
+
+All fields are optional with sensible defaults.
+
+### Model Selection
+
+Choose based on accuracy vs speed tradeoffs:
+
+| Model | Size | Speed | Accuracy | Use Case |
+|-------|------|-------|----------|----------|
+| yolo11n.pt | 6MB | Fastest | Good | Quick tagging of large collections |
+| yolo11s.pt | 19MB | Fast | Better | Balanced performance |
+| yolo11m.pt | 40MB | Medium | High | More accurate tagging |
+| yolo11l.pt | 51MB | Slow | Very High | When accuracy matters |
+| yolo11x.pt | 115MB | Slowest | Best | Maximum accuracy (default) |
+
+Models auto-download on first use.
+
+### Device Support
+
+YOLO automatically detects and uses available hardware:
+- **Apple Silicon Macs**: Uses MPS (Metal Performance Shaders) for GPU acceleration
+- **NVIDIA GPUs**: Uses CUDA if available
+- **CPU**: Fallback for all systems
+
+No manual device configuration needed.
+
+### Detectable Objects
+
+YOLO11 is trained on the COCO dataset and can detect 80 object classes including:
+- People and animals: person, cat, dog, horse, bird, etc.
+- Vehicles: car, truck, bus, bicycle, motorcycle, boat, airplane
+- Indoor: chair, table, couch, bed, tv, laptop, keyboard, cell phone
+- Outdoor: traffic light, fire hydrant, stop sign, bench
+- Sports: sports ball, baseball bat, tennis racket, skateboard
+- Food: pizza, donut, cake, apple, banana, sandwich
+- And many more...
+
+### Workflow Example
+
+1. Organize your photos with sync:
+   ```bash
+   photosort --config config.yml sync
+   ```
+
+2. Add AI tags to organized photos:
+   ```bash
+   photosort --config config.yml add-yolo-tags
+   ```
+
+3. Search photos by tags using any photo management software that reads EXIF keywords (Lightroom, Apple Photos, etc.)
+
+### Performance Tips
+
+- Use smaller models (yolo11n.pt or yolo11s.pt) for faster processing of large collections
+- Lower confidence threshold (0.1-0.2) to detect more objects, higher (0.4-0.5) for only confident detections
+- Run on machines with GPU (Apple Silicon MPS or NVIDIA CUDA) for significant speedup
+- Process in batches - YOLO is more efficient with multiple images
+
+### Troubleshooting
+
+**"YOLO dependencies not installed"**
+- Run: `pip install photosort[yolo]`
+
+**"Could not display window (headless?)"**
+- You're using `--interactive` on a system without display. Remove the flag or run on a system with GUI.
+
+**Model download fails**
+- Check internet connection
+- Models are downloaded from Ultralytics servers on first use
+- Downloaded models are cached in `~/.cache/torch/hub/`
+
+**Slow performance**
+- Try a smaller model (yolo11n.pt or yolo11s.pt)
+- Reduce imgsz to 320 or 416 for faster inference
+- Ensure GPU acceleration is working (check logs for device info)
+
+**No tags written**
+- Check that exiftool is installed and accessible
+- Verify file permissions allow writing EXIF data
+- Use `--dry-run` to see what would be tagged
+- Check logs with `--debug` flag for errors

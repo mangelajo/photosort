@@ -8,6 +8,11 @@ requires-python = ">=3.9"
 dependencies = [
     "pyaml>=24.7.0",
     "pyexiftool>=0.5.6",
+    "ultralytics>=8.0.0",
+    "torch>=2.0.0",
+    "opencv-python>=4.8.0",
+    "pillow-heif>=0.16.0",
+    "pi-heif>=0.20.0",
 ]
 
 [project.scripts]

@@ -15,4 +15,12 @@ output:
   log_file: 'photosort.log'
   db_file: 'photosort.db'
 
+# Optional: YOLO object detection settings
+# Requires: pip install photosort[yolo]
+# yolo:
+#   model: 'yolo11x.pt'  # Model: yolo11n/s/m/l/x.pt (n=fastest, x=most accurate)
+#   confidence: 0.25      # Detection confidence threshold (0.0-1.0)
+#   imgsz: 640           # Inference image size
+#   interactive: false    # Show visualization windows
+
 

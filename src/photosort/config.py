@@ -101,3 +101,39 @@ class Config:
         """
         source = self._data['sources'].get(source_name, {})
         return source.get('fallback_to_file_date', False)
+
+    def yolo_model(self):
+        """
+        Returns the YOLO model path/name to use for object detection.
+        Defaults to 'yolo11x.pt' if not specified.
+        """
+        if 'yolo' in self._data and 'model' in self._data['yolo']:
+            return self._data['yolo']['model']
+        return 'yolo11x.pt'
+
+    def yolo_confidence(self):
+        """
+        Returns the confidence threshold for YOLO object detection.
+        Defaults to 0.25 if not specified.
+        """
+        if 'yolo' in self._data and 'confidence' in self._data['yolo']:
+            return float(self._data['yolo']['confidence'])
+        return 0.25
+
+    def yolo_imgsz(self):
+        """
+        Returns the image size for YOLO inference.
+        Defaults to 640 if not specified.
+        """
+        if 'yolo' in self._data and 'imgsz' in self._data['yolo']:
+            return int(self._data['yolo']['imgsz'])
+        return 640
+
+    def yolo_interactive(self):
+        """
+        Returns whether to show interactive visualization with cv2.
+        Defaults to False if not specified.
+        """
+        if 'yolo' in self._data and 'interactive' in self._data['yolo']:
+            return bool(self._data['yolo']['interactive'])
+        return False

@@ -12,6 +12,10 @@ test:
 sync:
 	uv sync
 
+sync-yolo:
+	uv sync
+	uv pip install -e ".[yolo]"
+
 install-uv:
 	curl -LsSf https://astral.sh/uv/install.sh | sh
 

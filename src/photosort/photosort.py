@@ -146,6 +146,108 @@ class PhotoSort:
             self.sync()
             time.sleep(MONITOR_INTERVAL_SECONDS)
 
+    def add_yolo_tags(self, interactive=False, dry_run=False):
+        """
+        Add YOLO object detection tags to photos in output directory.
+
+        Args:
+            interactive: Show cv2 visualization window for each image
+            dry_run: Preview tags without writing to EXIF
+        """
+        try:
+            from . import yolo_tagger
+        except ImportError:
+            logging.error("YOLO dependencies not installed.")
+            print("ERROR: YOLO dependencies not installed.")
+            print("")
+            print("Install with: pip install photosort[yolo]")
+            print("Or: pip install ultralytics torch opencv-python")
+            sys.exit(1)
+
+        # Check if YOLO is available
+        if not yolo_tagger.YOLO_AVAILABLE:
+            logging.error("YOLO dependencies not installed.")
+            print("ERROR: YOLO dependencies not installed.")
+            print("")
+            print("Install with: pip install photosort[yolo]")
+            sys.exit(1)
+
+        # Initialize YOLO tagger
+        try:
+            tagger = yolo_tagger.YoloTagger(
+                model_path=self._config.yolo_model(),
+                confidence=self._config.yolo_confidence()
+            )
+        except yolo_tagger.YoloNotAvailableError as e:
+            logging.error(f"YOLO initialization failed: {e}")
+            print(f"ERROR: {e}")
+            sys.exit(1)
+
+        # Walk output directory to find photos
+        walker = walk.WalkForMedia(
+            self._config.output_dir(),
+            ignores=self._inputs
+        )
+
+        processed = 0
+        tagged = 0
+        errors = 0
+
+        logging.info("Starting YOLO tagging of photos in output directory")
+
+        for file_dir, file_name in walker.find_media():
+            file_path = os.path.join(file_dir, file_name)
+
+            # Only process photos, skip movies for now
+            media_file = media.MediaFile.build_for(file_path)
+            if media_file.type() != 'photo':
+                logging.debug(f"Skipping non-photo: {file_path}")
+                continue
+
+            try:
+                # Detect objects
+                labels = tagger.detect_objects(file_path)
+
+                if labels:
+                    if dry_run:
+                        logging.info(f"[DRY RUN] Would tag {file_path} with: {labels}")
+                        print(f"[DRY RUN] {file_name}: {', '.join(labels)}")
+                    else:
+                        # Add tags to EXIF
+                        success = tagger.add_tags_to_photo(file_path, labels)
+                        if success:
+                            logging.info(f"Tagged {file_path}: {labels}")
+                            print(f"Tagged {file_name}: {', '.join(labels)}")
+                            tagged += 1
+                        else:
+                            logging.error(f"Failed to tag {file_path}")
+                            errors += 1
+
+                    # Show visualization if interactive
+                    if interactive:
+                        tagger.visualize_detections(file_path, show_window=True)
+                else:
+                    logging.debug(f"No objects detected in {file_path}")
+
+                processed += 1
+
+            except KeyboardInterrupt:
+                logging.info("Interrupted by user")
+                print("\nInterrupted by user")
+                break
+            except Exception as e:
+                logging.error(f"Error processing {file_path}: {e}")
+                errors += 1
+
+        # Print summary
+        print(f"\nSummary:")
+        print(f"  Processed: {processed}")
+        if not dry_run:
+            print(f"  Tagged: {tagged}")
+        print(f"  Errors: {errors}")
+
+        logging.info(f"YOLO tagging complete: {processed} processed, {tagged} tagged, {errors} errors")
+
     @staticmethod
     def version():
         print("photosort version %s" % version('photosort'))
@@ -154,7 +256,7 @@ class PhotoSort:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('op', action="store",
-                        choices=['sync', 'rebuilddb', 'monitor', "version"],
+                        choices=['sync', 'rebuilddb', 'monitor', 'add-yolo-tags', "version"],
                         help="Operation")
 
     group = parser.add_argument_group('Common parameters')
@@ -164,6 +266,15 @@ def main():
     group.add_argument('--debug',
                        action="store_true",
                        help="Enable debugging")
+
+    yolo_group = parser.add_argument_group('YOLO tagging parameters')
+    yolo_group.add_argument('--interactive',
+                           action="store_true",
+                           help="Show visualization window for each detection (requires display)")
+    yolo_group.add_argument('--dry-run',
+                           action="store_true",
+                           help="Preview tags without writing to EXIF")
+
     ns = parser.parse_args()
 
     try:
@@ -192,6 +303,13 @@ def main():
 
         elif ns.op == "monitor":
             photo_sort.monitor()
+
+        elif ns.op == "add-yolo-tags":
+            photo_sort.add_yolo_tags(
+                interactive=ns.interactive,
+                dry_run=ns.dry_run
+            )
+
         elif ns.op == "version":
             photo_sort.version()
         else:
