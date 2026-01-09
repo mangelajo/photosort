@@ -4,6 +4,9 @@ distribute:
 	uv run twine upload dist/*
 
 test:
+   uv run pytest
+
+test-all:
 	for python in 3.9 3.10 3.11 3.12 3.13 3.14; do \
 		echo "Testing on python $$python"; \
 		uv run -p $$python pytest; \

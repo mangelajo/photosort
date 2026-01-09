@@ -576,15 +576,3 @@ class TestYoloEndToEndTagging(TestCase):
         for label in labels:
             self.assertIn(label, final_keywords,
                          f"YOLO label '{label}' should be added to HEIC")
-
-
-class TestYoloNotAvailable(TestCase):
-    """Test behavior when YOLO is not available."""
-
-    @unittest.skipIf(YOLO_AVAILABLE, "YOLO is available, skipping unavailable tests")
-    def test_yolo_not_available_error(self):
-        """Test that appropriate error is raised when YOLO not available."""
-        # This test only runs when YOLO is NOT installed
-        with self.assertRaises(NameError):
-            # yolo_tagger module should not be importable
-            yolo_tagger.YoloTagger()

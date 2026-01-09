@@ -6,8 +6,8 @@ __copyright__ = "Copyright (C) Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
 import logging
-import mock
 import os
+from unittest import mock
 import yaml
 
 from photosort import photosort

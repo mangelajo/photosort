@@ -7,10 +7,10 @@ __license__ = "GPLv3"
 
 import csv
 import logging
-import mock
 import os
 import tempfile
 import unittest
+from unittest import mock
 
 from photosort import config
 from photosort import photodb

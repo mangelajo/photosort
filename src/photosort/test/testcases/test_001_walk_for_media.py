@@ -7,9 +7,9 @@ __license__ = "GPLv3"
 
 import fcntl
 import logging
-import mock
 import os
 import time
+from unittest import mock
 
 from photosort import test
 from photosort import walk

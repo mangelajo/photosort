@@ -5,12 +5,12 @@ __email__ = "miguelangel@ajo.es"
 __copyright__ = "Copyright (C) 2013 Miguel Angel Ajo Pelayo"
 __license__ = "GPLv3"
 
-import mock
 import os
 import shutil
 import tempfile
 import time
 import unittest
+from unittest import mock
 import yaml
 
 from photosort import exif
